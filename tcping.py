@@ -43,11 +43,12 @@ while True:
         time2 = time.time()
         ping = (time2 - time1) * 1000
         print(f"Host=\u001b[32;1m{ip}\u001b[0;0m Port=\u001b[32;1m{port}\u001b[0;0m Time=\u001b[32;1m{ping:.2f}ms\u001b[0;0m Sequence=\u001b[32;1m{sequence}\u001b[0;0m")
-        sequence += 1
         sock.close()
         time.sleep(1)
     except Exception as e:
-        print(f"\u001b[31;1mError\u001b[0;0m: {e}")
+        print(f"\u001b[31;1mError\u001b[0;0m: message=\u001b[32;1m{e}\u001b[0;0m Sequence=\u001b[32;1m{sequence}\u001b[0;0m")
         pass
     except KeyboardInterrupt:
         sys.exit()
+    finally:
+        sequence += 1
