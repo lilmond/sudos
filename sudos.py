@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #Beta Version: 2.0
 from random_user_agent.user_agent import UserAgent
 import threading
