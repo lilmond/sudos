@@ -189,7 +189,6 @@ def HTTPS(host, port, proxy_host, proxy_port):
             anti_cache = "".join(anti_cache_list)
             user_agent = usera.get_random_user_agent()
             http = f"{method} {path}?{anti_cache}{parameters} HTTP/1.1\r\nHost: {host}\r\nUser-Agent: {user_agent}\r\n\r\n"
-            print(http)
             sent_bytes = sock.send(http.encode())
             Bps += sent_bytes
             hrs += 1
