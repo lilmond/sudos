@@ -17,6 +17,7 @@ Please copy and paste the step-by-step commands below to successfully install **
 git clone https://github.com/lilmond/sudos.git
 pip install -r requirements.txt
 ```
+You can put `sudos.py` to `/usr/local/bin/` with root and just remove the file extension to run the script globally. And don't forget to give it access using `chmod`.
 
 # Usage examples
 Commnad 1: Sets socket connection timeout
