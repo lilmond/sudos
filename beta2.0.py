@@ -147,7 +147,7 @@ try:
     url_ip = socket.gethostbyname(url)
 except Exception as e:
     print(f"Unable to resolve domain's IP")
-    sys.exit()
+    url_ip = "Unable to resolve"
 
 if url == url_ip:
     url_ip = ""
@@ -230,7 +230,7 @@ def verbose_status():
         separator = " " * 6
         while True:
             time.sleep(1)
-            print(f"AT: {active_threads} {separator[len(str(active_threads)):]} HR/s: {hrs} {separator[len(str(hrs)):]} kB/s: {Bps / 1000:.2f}")
+            print(f"Threads: {active_threads} {separator[len(str(active_threads)):]} HR/s: {hrs} {separator[len(str(hrs)):]} kB/s: {Bps / 1000:.2f}")
             hrs = 0
             Bps = 0
     except Exception as e:
