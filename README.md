@@ -4,6 +4,8 @@
 
 **We** are in need of soldiers. Join **[CSEC](https://discord.com/invite/dZSDbjJPHx)** for more free powerful tools. We also teach **anonimity**, **hacking** and **programming** for free!
 
+Also, thanks to https://openproxy.space/list for providing these proxy lists for free!
+
 # Disclaimer
 - This tool is for educational purposes only.
 - I will not be responsible for any damage this tool cause. Use it at your own risk!
