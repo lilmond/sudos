@@ -2,7 +2,7 @@
 
 **SuDOS** or Super Denial of Service is a proxy-based DoS tool used to crash unprotected websites from this kind of attack. It is highly recommended to use proxychains or VPN while using this tool to hide your own IP address from proxy servers or even from your target.
 
-Join **[CSEC](https://discord.com/invite/dZSDbjJPHx)** for more free powerful tools. We also teach **anonimity**, **hacking** and **programming** for free!
+**We** are in need of soldiers. Join **[CSEC](https://discord.com/invite/dZSDbjJPHx)** for more free powerful tools. We also teach **anonimity**, **hacking** and **programming** for free!
 
 # Disclaimer
 - This tool is for educational purposes only.
