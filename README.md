@@ -15,6 +15,11 @@ pip install -r requirements.txt
 ```
 
 # Usage examples
+Commnad 1: Sets socket connection timeout
+
+Command 2: Sets max threads to 100
+
+Command 3: Sets HTTP method to POST
 ```
 python sudos.py "https://example.com/path/page.php?parameter=parameter_value" ./proxies/http/1.txt http --timeout 5
 python sudos.py "https://example.com/path/page.php?parameter=parameter_value" ./proxies/socks5/1.txt socks5 -t 100
