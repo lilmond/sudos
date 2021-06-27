@@ -35,8 +35,8 @@ except Exception as e:
 
 print(f"Initializing TCP ping to \u001b[32;1m{host}\u001b[0;0m:\u001b[32;1m{port}\u001b[0;0m...")
 print(f"")
-try:
-    while True:
+while True:
+    try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         time1 = time.time()
         sock.connect((ip, port))
@@ -46,8 +46,8 @@ try:
         sequence += 1
         sock.close()
         time.sleep(1)
-except Exception as e:
-    print(f"\u001b[31;1mError\u001b[0;0m: {e}")
-    pass
-except KeyboardInterrupt:
-    sys.exit()
+    except Exception as e:
+        print(f"\u001b[31;1mError\u001b[0;0m: {e}")
+        pass
+    except KeyboardInterrupt:
+        sys.exit()
