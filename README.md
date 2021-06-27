@@ -27,3 +27,6 @@ python sudos.py "https://example.com/path/page.php?parameter=parameter_value" ./
 python sudos.py "https://example.com/path/page.php?parameter=parameter_value" ./proxies/socks5/1.txt socks5 -t 100
 python sudos.py "https://example.com/path/page.php?parameter=parameter_value" ./proxies/socks4/1.txt socks4 -m POST
 ```
+
+# Screenshots
+<img src="https://raw.githubusercontent.com/lilmond/sudos/main/screenshots/sudos_1.jpg" width=300/>
