@@ -47,6 +47,7 @@ torify -q python sudos.py "http://example.com/" ./proxies/http/1.txt http
 
 # Screenshots
 <img src="https://raw.githubusercontent.com/lilmond/sudos/main/screenshots/sudos_1.jpg" width=300/>
+<img src="https://raw.githubusercontent.com/lilmond/sudos/main/screenshots/sudos_5.jpg" width=300/>
 <img src="https://raw.githubusercontent.com/lilmond/sudos/main/screenshots/sudos_4.png" width=300/>
 
 # Where do I get proxy lists?
