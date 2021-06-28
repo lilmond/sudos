@@ -20,15 +20,29 @@ pip install -r requirements.txt
 You can put `sudos.py` to `/usr/local/bin/` with root and just remove the file extension to run the script globally. And don't forget to give it access using `chmod`.
 
 # Usage examples
-Commnad 1: Sets socket connection timeout
-
-Command 2: Sets max threads to 100
-
-Command 3: Sets HTTP method to POST
+## Basic commands
+Sets socket connection timeout to 5
 ```
 python sudos.py "https://example.com/path/page.php?parameter=parameter_value" ./proxies/http/1.txt http --timeout 5
-python sudos.py "https://example.com/path/page.php?parameter=parameter_value" ./proxies/socks5/1.txt socks5 -t 100
-python sudos.py "https://example.com/path/page.php?parameter=parameter_value" ./proxies/socks4/1.txt socks4 -m POST
+```
+
+Sets max threads to 100
+```
+python sudos.py "https://example.com/path/page.php" ./proxies/socks5/2.txt socks5 -t 100
+```
+
+Sets HTTP method to POST
+```
+python sudos.py "https://example.com/path/page.php" ./proxies/socks4/1.txt socks4 -m POST
+```
+## Increase anonymity commands
+Basic usage of **proxychains**
+```
+proxychains4 -q python sudos.py "http://example.com/" ./proxies/socks4/1.txt socks4
+```
+**SuDOS** with **Torify**
+```
+torify -q python sudos.py "http://example.com/" ./proxies/http/1.txt http
 ```
 
 # Screenshots
