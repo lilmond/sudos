@@ -48,3 +48,9 @@ torify -q python sudos.py "http://example.com/" ./proxies/http/1.txt http
 # Screenshots
 <img src="https://raw.githubusercontent.com/lilmond/sudos/main/screenshots/sudos_1.jpg" width=300/>
 <img src="https://raw.githubusercontent.com/lilmond/sudos/main/screenshots/sudos_4.png" width=300/>
+
+# Where do I get proxy lists?
+Just click the links below and find a best proxy list for yourself.
+- https://openproxy.space/list
+- https://www.proxy-list.download/
+- https://www.proxyscrape.com/free-proxy-list
