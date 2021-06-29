@@ -330,7 +330,7 @@ def onexit():
     try:
         print("\r\n")
         logging.info("Attack finished\r\n")
-        print(f"Duration: \u001b[32;1m{(time.time() - initial_attack_time):.2f} seconds\u001b[0;0m\r\nTotal Socks: \u001b[32;1m{total_socks_used}\u001b[0;0m\r\nTotal HTTP: \u001b[32;1m{total_hrs}\u001b[0;0m\r\nTotal Bandwidth: \u001b[32;1m{(total_Bps / 1000):.2f} kB\u001b[0;0m\r\n")
+        print(f"Duration: \u001b[32;1m{(time.time() - initial_attack_time):.2f} seconds\u001b[0;0m\r\nTotal Sockets: \u001b[32;1m{total_socks_used}\u001b[0;0m\r\nTotal HTTP: \u001b[32;1m{total_hrs}\u001b[0;0m\r\nTotal Bandwidth: \u001b[32;1m{(total_Bps / 1000):.2f} kB\u001b[0;0m\r\n")
     except Exception:
         pass
 
