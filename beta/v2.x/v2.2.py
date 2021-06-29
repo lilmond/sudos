@@ -18,11 +18,11 @@ parser.add_argument("proxy_list", nargs="?", type=str, help="Proxy list file. Cl
 parser.add_argument("proxy_type", nargs="?", type=str, help="Proxy list type. Proxy Types: SOCKS5, SOCKS4, HTTP")
 parser.add_argument("-p", "--port", type=int, default=80, help="URL host's port. Sets to 443 when using HTTPS protocol")
 parser.add_argument("-m", "--method", type=str, default="GET", help="HTTP request method. Default: GET")
-parser.add_argument("-t", "--threads", type=int, default=777, help="Max threads. Default: 777")
+parser.add_argument("-t", "--threads", type=int, default=100, help="Max threads. Default: 100")
 parser.add_argument("-d", "--debug", action="store_true", help="Enables debug mode")
 parser.add_argument("--delay", type=int, default=5, help="Delay seconds to send HTTP requests. Default: 5")
 parser.add_argument("--timeout", type=int, default=5, help="Set default socket connection timeout. Default: 5")
-parser.add_argument("--rpp", type=int, default=100, help="Set requests per proxy. Default: 100")
+parser.add_argument("--rpp", type=int, default=777, help="Set requests per proxy. Default: 777")
 
 parser.set_defaults(debug=False)
 
