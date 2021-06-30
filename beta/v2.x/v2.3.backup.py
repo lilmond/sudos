@@ -3,6 +3,7 @@
 
 # *** Modules *** #
 import argparse
+import logging
 import sys
 import os
 # *** Modules End *** #
@@ -18,6 +19,7 @@ parser.add_argument("-t", "--threads", type=int, default=100, help="Max threads 
 parser.add_argument("--timeout", type=int, default=15, help="Proxy and socket connection timeout. Default is 15")
 parser.add_argument("--delay", type=int, default=1, help="Delay time to send HTTP requests per threads")
 parser.add_argument("--no-color", action="store_true", help="Disables text colors also prevents from clearing the console logs")
+parser.add_argument("--debug", action="store_true", help="Enables debug mode. Increases verbose log")
 # *** Arguments End *** #
 
 # ** Initial Variables ** #
@@ -35,12 +37,18 @@ max_threads = args.threads
 timeout = args.timeout
 delay = args.delay
 no_color = args.no_color
+debug = args.debug
 # ** Argument Parser End ** #
 
 # *** Logger Format And Filters *** #
-logging.basiConfig(
-    format="[]"
+logging.basicConfig(
+    format="[%(levelname)s] %(message)s",
 )
+logger = logging.getLogger(__name__)
+if debug:
+    logger.setLevel(logging.DEBUG)
+else:
+    logger.setLevel(logging.INFO)
 # *** Logger Format And Filters End *** #
 
 # ** Valid Variables ** #
@@ -77,6 +85,8 @@ else:
     RESET = ""
 # *** Variable Colors End *** #
 
+logger.debug("Setting initial configurations and filters")
+
 # ** Argument Filters ** #
 # * Argument Host Filter * #
 # - exits when host is unspecified
@@ -90,12 +100,17 @@ if not url:
 if proxy_list:
     use_proxy = True
 # - validates if proxy list file exists or available
-try:
-    proxy_list = open(proxy_list, "r")
-    proxies = proxy_list.readlines()
-    proxy_list.close()
-except FileNotFoundError:
-    print(f"{RED}Initial Error{RESET} => {WHITE}Proxy list file not found.{RESET}")
-except Exception as e:
-    print(f"{RED}Initial Error{RESET} => {WHITE}{e}{RESET}")
+if use_proxy:
+    try:
+        proxy_list = open(proxy_list, "r")
+        proxies = proxy_list.readlines()
+        proxy_list.close()
+    except FileNotFoundError:
+        print(f"{RED}Initial Error{RESET} => {WHITE}Proxy list file not found.{RESET}")
+        sys.exit()
+    except Exception as e:
+        print(f"{RED}Initial Error{RESET} => {WHITE}{e}{RESET}")
+        sys.exit()
 # * Proxy Filter End * #
+
+logger.debug("Initial configurations successfully set")
