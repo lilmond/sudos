@@ -72,7 +72,7 @@ if not no_color:
     BLUE = "\u001b[34;1m"
     MAGENTA = "\u001b[35;1m"
     CYAN = "\u001b[36;1m"
-    WHITE = "\u001b[37;0m"
+    WHITE = "\u001b[37;1m"
     RESET = "\u001b[0;0m"
 else:
     RED = ""
@@ -85,14 +85,24 @@ else:
     RESET = ""
 # *** Variable Colors End *** #
 
-logger.debug("Setting initial configurations and filters")
+# ** Colors Definitions ** #
+# RED = ERROR
+# GREEN = SUCCESS
+# YELLOW = WARNING
+# BLUE = OBJECT/USER INPUT
+# MAGENTA = OBJECT
+# CYAN = CLASS/SUBCLASS
+# WHITE = TEXT/MESSAGE
+# ** Colors Definitions End ** #
+
+logger.debug(f"{GREEN}Initial Configuration{RESET} => {WHITE}Setting initial configurations and filters{RESET}")
 
 # ** Argument Filters ** #
 # * Argument Host Filter * #
 # - exits when host is unspecified
 if not url:
     parser.print_help()
-    print("\r\nurl is required\r\n")
+    logger.info(f"{RED}Initial Error{RESET} => {YELLOW}Missing Parameter{RESET} => {BLUE}URL{RESET}")
     sys.exit()
 # * Argument Host Filter End ** #
 # * Proxy Filter * #
@@ -106,11 +116,18 @@ if use_proxy:
         proxies = proxy_list.readlines()
         proxy_list.close()
     except FileNotFoundError:
-        print(f"{RED}Initial Error{RESET} => {WHITE}Proxy list file not found.{RESET}")
+        logger.info(f"{RED}Initial Error{RESET} => {WHITE}Proxy list file not found.{RESET}")
         sys.exit()
     except Exception as e:
-        print(f"{RED}Initial Error{RESET} => {WHITE}{e}{RESET}")
+        logger.info(f"{RED}Initial Error{RESET} => {WHITE}{e}{RESET}")
         sys.exit()
+# - validates proxy protocol if specified
+if proxy_type:
+    if not proxy_type in proxy_protocols:
+        logging.info(f"{RED}Initial Error{RESET} => {WHITE}Invalid proxy protocol{RESET}")
+        sys.exit()
+    elif not use_proxy:
+        logging.info(f"")
 # * Proxy Filter End * #
 
-logger.debug("Initial configurations successfully set")
+logger.debug(f"{GREEN}Initial Configuration{RESET} => {WHITE}Initial configurations successfully set{RESET}")
