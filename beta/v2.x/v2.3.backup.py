@@ -2,6 +2,7 @@
 #version: beta-2.3
 
 # *** Modules *** #
+from lib import sudos
 import argparse
 import logging
 import sys
@@ -98,13 +99,18 @@ else:
 logger.debug(f"{GREEN}Initial Configuration{RESET} => {WHITE}Setting initial configurations and filters{RESET}")
 
 # ** Argument Filters ** #
-# * Argument Host Filter * #
+# * Argument URL Filter * #
 # - exits when host is unspecified
 if not url:
     parser.print_help()
     logger.info(f"{RED}Initial Error{RESET} => {YELLOW}Missing Parameter{RESET} => {BLUE}URL{RESET}")
     sys.exit()
-# * Argument Host Filter End ** #
+try:
+    sudos.Sudos.spliturl(url)
+except Exception as e:
+    logger.info(f"{RED}Initial Error{RESET} => {WHITE}{e}{RESET}")
+    sys.exit()
+# * Argument URL Filter End ** #
 # * Proxy Filter * #
 # - sets use_proxy variable if proxy_list is specified
 if proxy_list:
@@ -116,7 +122,7 @@ if use_proxy:
         proxies = proxy_list.readlines()
         proxy_list.close()
     except FileNotFoundError:
-        logger.info(f"{RED}Initial Error{RESET} => {WHITE}Proxy list file not found.{RESET}")
+        logger.info(f"{RED}Initial Error{RESET} => {WHITE}Proxy list file not found{RESET}")
         sys.exit()
     except Exception as e:
         logger.info(f"{RED}Initial Error{RESET} => {WHITE}{e}{RESET}")
