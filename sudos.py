@@ -262,10 +262,10 @@ def HTTP(host, port, proxy_type, proxy_host=None, proxy_port=None):
         port = int(port)
         if use_proxy:
             proxy_port = int(proxy_port)
-            sock.set_proxy(proxy_type, proxy_host, proxy_port)
         rp = int(rpp)
         if use_proxy:
             sock = socks.socksocket()
+            sock.set_proxy(proxy_type, proxy_host, proxy_port)
         else:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((host, port))
