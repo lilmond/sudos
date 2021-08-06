@@ -211,7 +211,7 @@ user_agents = [
 
 logger.info("Done!")
 
-def HTTPS(host, port, proxy_host=None, proxy_port=None):
+def HTTPS(host, port, proxy_type, proxy_host=None, proxy_port=None):
     try:
         global active_threads
         global hrs
@@ -225,6 +225,7 @@ def HTTPS(host, port, proxy_host=None, proxy_port=None):
         rp = int(rpp)
         if use_proxy:
             sock = socks.socksocket()
+            sock.set_proxy(proxy_type, proxy_host, proxy_port)
         else:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(timeout)
@@ -249,7 +250,7 @@ def HTTPS(host, port, proxy_host=None, proxy_port=None):
     finally:
         active_threads -= 1
 
-def HTTP(host, port, proxy_host=None, proxy_port=None):
+def HTTP(host, port, proxy_type, proxy_host=None, proxy_port=None):
     try:
         global active_threads
         global hrs
@@ -261,6 +262,7 @@ def HTTP(host, port, proxy_host=None, proxy_port=None):
         port = int(port)
         if use_proxy:
             proxy_port = int(proxy_port)
+            sock.set_proxy(proxy_type, proxy_host, proxy_port)
         rp = int(rpp)
         if use_proxy:
             sock = socks.socksocket()
@@ -313,7 +315,7 @@ def main():
                     while True:
                         if active_threads >= max_threads:
                             continue
-                        threading.Thread(target=eval(protocol), args=[url, port, proxy_host, proxy_port], daemon=True).start()
+                        threading.Thread(target=eval(protocol), args=[url, port, proxy_type, proxy_host, proxy_port], daemon=True).start()
                         break
         else:
             while True:
