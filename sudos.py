@@ -61,11 +61,11 @@ def sudos(url, **kwargs):
             elif not proxy_port:
                 print(f"sudos error: missing proxy port")
                 return
-        try:
-            proxy_port = int(proxy_port)
-        except ValueError:
-            print(f"sudos error: unable to convert proxy port to integer")
-            return
+            try:
+                proxy_port = int(proxy_port)
+            except ValueError:
+                print(f"sudos error: unable to convert proxy port to integer")
+                return
         if proxy_host:
             sock = socks.socksocket()
             sock.set_proxy(proxy_type, proxy_host, proxy_port)
