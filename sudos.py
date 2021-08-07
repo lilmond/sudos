@@ -114,6 +114,7 @@ def url_split(url):
         try:
             domain, path = url.split("/", 1)
         except ValueError:
+            domain = url
             path = ""
         try:
             domain, port = domain.split(":", 1)
