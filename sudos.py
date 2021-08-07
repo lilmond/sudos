@@ -151,7 +151,7 @@ def main():
         parser.add_argument("-z", "--proxy-type", choices=["http", "socks4", "socks5"], metavar="PROXYTYPE", help="Proxy list type")
         parser.add_argument("-x", "--proxy-list", metavar="PROXYFILE", help="Proxy list file")
         parser.add_argument("-c", "--timeout", type=int, default=5, metavar="TIMEOUT", help="Socket connection timeout")
-        parser.add_argument("-v", "--delay", type=int, metavar="DELAY", help="Timeout per HTTP request")
+        parser.add_argument("-v", "--delay", type=int, default=1, metavar="DELAY", help="Timeout per HTTP request")
         parser.add_argument("-b", "--connection-limit", type=int, metavar="INT", help="Connected socket count before flooding the target server")
         parser.add_argument("url", nargs="?", metavar="URL", help="Target URL including protocol, domain and port for particular use")
         args = parser.parse_args()
@@ -166,11 +166,8 @@ def main():
             parser.print_usage()
             sys.exit()
         
-        if timeout:
-            socket.setdefaulttimeout(timeout)
-            
-        if args.delay:
-            delay = args.delay
+        socket.setdefaulttimeout(timeout)
+        delay = args.delay
 
         if args.connection_limit:
             connection_limit = args.connection_limit
