@@ -7,6 +7,7 @@
 Also, thanks to https://openproxy.space/list for providing these proxy lists for free!
 
 # Disclaimer
+- This tool consumes too much of network bandwidth, do not use this if you don't know what it does!
 - This tool is for educational purposes only.
 - I will not be responsible for any damage this tool cause. Use it at your own risk!
 - This tool is in early version. Many bugs may occur!
