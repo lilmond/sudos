@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#version: 1.0 release
+#version: 2.5 beta
 import threading
 import argparse
 import random
