@@ -9,6 +9,20 @@ Join our Discord: https://discord.com/invite/dZSDbjJPHx
 - I will not be responsible for any damage this tool cause. Use it at your own risk!
 - This tool is in early version. Many bugs may occur!
 
+# Usages
+- Basic usage
+```
+python sudos.py -z socks5 -x socks5_list.txt https://target.com/
+```
+- Harder testing usage
+```
+python sudos.py -z socks5 -x socks5_list.txt -t 500 -c 0 https://target.com/
+```
+- Server bandwidth consuming test
+```
+python sudos.py -z socks5 -x socks5_list.txt -c 0 -n https://target.com/
+```
+
 # Where do I get proxy lists?
 Just click the links below and find a best proxy list for yourself.
 - https://openproxy.space/list
