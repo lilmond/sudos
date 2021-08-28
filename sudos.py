@@ -190,11 +190,14 @@ def getinfo():
 def target_status():
     try:
         global target_stats
+        url = f"{url_dict['protocol']}://{url_dict['domain']}{url_dict['path']}"
         while True:
-            r = requests.get(url, headers={"User-Agent": random.choice(user_agents)})
+            anti_cache = rand_chars(77)
+            r = requests.get(f"{url}?{anti_cache}", headers={"User-Agent": random.choice(user_agents)})
             target_stats = f"{r.status_code} {r.reason}"
             time.sleep(1)
-    except Exception:
+    except Exception as e:
+        print(f"target_status error: {e}")
         pass
 
 def verbose():
