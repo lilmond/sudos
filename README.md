@@ -1,6 +1,6 @@
 # SuDOS
 
-SuDOS is a pseudo-botnet.
+SuDOS is a pseudo-botnet. Sorry for bad code and documentation. I will fix it later!
 
 Discord: https://discord.com/invite/dZSDbjJPHx
 
