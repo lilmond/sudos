@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#version: 2.5.2 beta
+#version: 2.5.3 beta
 from rich.live import Live
 import threading
 import argparse
