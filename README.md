@@ -1,13 +1,12 @@
 # SuDOS
 
-**SuDOS** or Super Denial of Service is a proxy-based DoS tool used to crash unprotected websites from this kind of attack. It is highly recommended to use proxychains or VPN while using this tool to hide your own IP address from proxy servers or even from your target.
+SuDOS is a pseudo-botnet.
 
-Join our Discord: https://discord.com/invite/dZSDbjJPHx
+Discord: https://discord.com/invite/dZSDbjJPHx
 
 # Disclaimer
-- This tool is for educational purposes only.
-- I will not be responsible for any damage this tool cause. Use it at your own risk!
-- This tool is in early version. Many bugs may occur!
+- I will not be responsible for any misuse of this tool. Do it at your own risk!
+- This content is currently on early version and made experimentaly. Many bugs may occur!
 
 # Usages
 - Basic usage
@@ -22,6 +21,15 @@ python sudos.py -z socks5 -x socks5_list.txt -t 500 -c 0 https://target.com/
 ```
 python sudos.py -z socks5 -x socks5_list.txt -c 0 -n https://target.com/
 ```
+
+# Attack Modes
+You can set the attack mode with the `-m <MODE>` parameter.
+
+## Attack Mode 1
+Attack mode 1 (Default) aka Slowloris sends numerous amount of HTTP GET requests. You can set the HTTP request sending speed with the `-c <INT>` parameter.
+
+## Attack Mode 2
+Attack mode 2 aka R-U-Dead-Yet sends a POST request and slowly send the content to the server. You can also set the content sending speed with the `-c <INT>` parameter.
 
 # Where do I get proxy lists?
 Just click the links below and find a best proxy list for yourself.
