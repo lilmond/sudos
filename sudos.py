@@ -201,7 +201,7 @@ class Sudos(object):
             
             sock.connect((url.domain, port))
             if url.protocol == "https":
-                context = ssl.create_default_socket()
+                context = ssl.create_default_context()
                 context.check_hostname = False
                 context.verify_mode = ssl.CERT_NONE
                 sock = context.wrap_socket(sock)
