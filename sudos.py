@@ -352,7 +352,7 @@ class Sudos(object):
         theme1 = COLORS.purple
         theme2 = COLORS.cyan
         theme3 = COLORS.blue
-        print(f"\r\n\r\n{theme3}ATTACK STATISTICS\r\n{theme1}HTTP Request: {theme2}{self._thrs}\r\n{theme1}Upload Bandwidth: {theme2}{tups}\r\n{theme1}Download Bandwidth: {theme2}{tdps}\r\n\r\n{theme1}Total Bandwidth: {theme2}{total_bandwidth}\r\n{theme1}Attack Duration: {theme2}{attack_duration:.2f}\r\n")
+        print(f"\r\n\r\n{theme3}ATTACK STATISTICS\r\n{theme1}HTTP Request: {theme2}{self._thrs}\r\n{theme1}Upload Bandwidth: {theme2}{tups}\r\n{theme1}Download Bandwidth: {theme2}{tdps}\r\n\r\n{theme1}Total Bandwidth: {theme2}{total_bandwidth}\r\n{theme1}Attack Duration: {theme2}{attack_duration:.2f}{COLORS.reset}\r\n")
     
     def initialize(self) -> None:
         try:
