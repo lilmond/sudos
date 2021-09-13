@@ -4,6 +4,13 @@ SuDOS is a proxy-based DDOS tool (pseudo-botnet) written in Python with live con
 
 Discord: https://discord.com/invite/dZSDbjJPHx
 
+# Updates
+2.5.4.1
+- Fixed initialization bug
+
+2.5.4.2
+- Fixed useragent loading bug
+
 # Disclaimer
 - I will not be responsible for any misuses nor damages causes by this tool. Use it at your own risk!
 
