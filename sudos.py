@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#version: 2.5.4.1-beta
+#version: 2.5.4.2-beta
 
 from collections import namedtuple
 
@@ -127,19 +127,19 @@ class Sudos(object):
 
     def load_user_agent(self) -> None:
         try:
-            if not os.path.exists("etc"):
-                os.mkdir("etc")
-            os.chdir("etc")
-            if not os.path.exists("useragents.txt"):
+            dir = __file__
+            dir = os.path.dirname(dir)
+            if not os.path.exists(f"{dir}/etc"):
+                os.mkdir(f"{dir}/etc")
+            if not os.path.exists(f"{dir}/etc/useragents.txt"):
                 print(f"[+] Downloading useragents")
                 http = requests.get("https://gist.githubusercontent.com/pzb/b4b6f57144aea7827ae4/raw/cf847b76a142955b1410c8bcef3aabe221a63db1/user-agents.txt")
-                with open("useragents.txt", "w") as f:
+                with open(f"{dir}/etc/useragents.txt", "w") as f:
                     f.write(http.text)
                     f.close()
-            with open("useragents.txt") as f:
+            with open(f"{dir}/etc/useragents.txt") as f:
                 self.user_agents = f.read().splitlines()
                 f.close()
-            os.chdir("..")
         except Exception as e:
             print(f"load_user_agent error: {e}")
             sys.exit()
@@ -414,24 +414,24 @@ class Sudos(object):
             threading.Thread(target=self.display_status, daemon=True).start()
             self._start_time = time.time()
             if args.proxy_list:
-	            while True:
-	                for proxy in proxies:
-	                    proxy_host, proxy_port = proxy.split(":", 1)
-	                    kwargs = {}
-	                    kwargs["proxy_protocol"] = proxy_protocol
-	                    kwargs["proxy_host"] = proxy_host
-	                    kwargs["proxy_port"] = proxy_port
-	                    kwargs["method"] = method
-	                    while True:
-	                        if self._active_threads >= self.max_threads:
-	                            continue
-	                        threading.Thread(target=self.http, args=[args.url], kwargs=kwargs, daemon=True).start()
-	                        break
+                    while True:
+                        for proxy in proxies:
+                            proxy_host, proxy_port = proxy.split(":", 1)
+                            kwargs = {}
+                            kwargs["proxy_protocol"] = proxy_protocol
+                            kwargs["proxy_host"] = proxy_host
+                            kwargs["proxy_port"] = proxy_port
+                            kwargs["method"] = method
+                            while True:
+                                if self._active_threads >= self.max_threads:
+                                    continue
+                                threading.Thread(target=self.http, args=[args.url], kwargs=kwargs, daemon=True).start()
+                                break
             else:
-            	while True:
-            		if self._active_threads >= self.max_threads:
-            			continue
-            		threading.Thread(target=self.http, args=[args.url], daemon=True).start()
+                while True:
+                        if self._active_threads >= self.max_threads:
+                                continue
+                        threading.Thread(target=self.http, args=[args.url], daemon=True).start()
         except KeyboardInterrupt:
             sys.exit()
         except Exception as e:
