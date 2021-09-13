@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#version: 2.5.4.1-beta
+#version: 2.5.4.2-beta
 
 from collections import namedtuple
 
