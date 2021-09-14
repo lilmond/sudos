@@ -2,6 +2,7 @@
 This shows how you can use SuDOS easily.
 
 ## Parameters
+Parameters of latest version of SuDOS. If you're using the later version, please update it.
 
 ### `url`
 This parameter is a must. URL must also be be defined in complete format including the protocol!
@@ -56,3 +57,24 @@ Set mode.
 Default: 1
 
 Type: INTEGER
+
+## Examples
+So if you're having trouble figuring out how to use SuDOS, try executing the commands below and try changing the parameter values.
+
+URL parameter is also always required so we will exclude it from required parameter values.
+
+### Basic
+This is the most basic command of SuDOS. Take note that this won't use proxies and will use your real own IP for the attack and your IP may get blocked by your target.
+
+Required Parameters: NONE
+```
+python sudos.py http://example.com/
+```
+
+### Proxy Mode
+This is how you can use proxies for the attack.
+
+Required Parameters: [-z | --proxy-type](https://github.com/lilmond/sudos/blob/main/docs/usage.md#-z---proxy-type), [-x | --proxy-list](https://github.com/lilmond/sudos/blob/main/docs/usage.md#x---proxy-list)
+```
+python sudos.py -z socks5 -x socks5_list.txt https://example.com/
+```
