@@ -3,6 +3,13 @@ This shows how you can use SuDOS easily.
 
 ## Parameters
 
+### `url`
+This parameter is a must. URL must also be be defined in complete format including the protocol!
+
+Type: URL
+
+Example: `http://example.com/`, `https://example.com/`
+
 ### `-t` `--threads`
 Set max thread.
 
@@ -14,6 +21,8 @@ Type: INTEGER
 Define the proxy protocol of the proxy list you're using. This is required when you're using a proxy list.
 
 Type: PROXY TYPE
+
+Example: `socks5`, `socks4`, `http`
 
 ### `x` `--proxy-list`
 Proxy list path. List format must be like: `127.0.0.1:9050`
