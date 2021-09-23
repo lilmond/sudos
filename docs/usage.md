@@ -44,6 +44,13 @@ Default: 1
 
 Type: INTEGER
 
+### `-b` `--no-verify`
+Set the SSL verification mode to CERT_NONE. Use this only when the server uses self signed certificate.
+
+Default: False
+
+Type: NONE
+
 ### `-n` `--receive`
 When this is set. You will receive HTTP response per HTTP request the socket send.
 
@@ -59,12 +66,12 @@ Default: 1
 Type: INTEGER
 
 ## Examples
-So if you're having trouble figuring out how to use SuDOS, try executing the commands below and try changing the parameter values.
+So if you're having trouble figuring out how to use SuDOS, try using the example commands below!
 
 URL parameter is also always required so we will exclude it from required parameter values.
 
 ### Basic
-This is the most basic command of SuDOS. Take note that this won't use proxies and will use your real own IP for the attack and your IP may get blocked by your target.
+This is the easiest way of using SuDOS. Take note that this won't use proxies and will use your real own IP address for the attack and your IP may get blocked by your target.
 
 Required Parameters: NONE
 ```
