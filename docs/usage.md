@@ -2,7 +2,7 @@
 This shows how you can use SuDOS easily.
 
 ## Parameters
-Parameters of latest version of SuDOS. If you're using the later version, please update it.
+Parameters of latest version of SuDOS. If you're using the older version, please update it.
 
 ### `url`
 This parameter is a must. URL must also be be defined in complete format including the protocol!
