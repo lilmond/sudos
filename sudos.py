@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#version: 2.5.4.2-beta
+#version: 2.5.4.3-beta
 
 from collections import namedtuple
 
@@ -45,6 +45,7 @@ class Sudos(object):
 
         self.anti_cache: bool = True
         self.receive_response: bool = False
+        self.ssl_cert_none: bool = False
 
     @staticmethod
     def split_url(url: str) -> namedtuple:
@@ -202,9 +203,12 @@ class Sudos(object):
             sock.connect((url.domain, port))
             if url.protocol == "https":
                 context = ssl.create_default_context()
-                context.check_hostname = False
-                context.verify_mode = ssl.CERT_NONE
-                sock = context.wrap_socket(sock)
+                if self.ssl_cert_none:
+                    context.check_hostname = False
+                    context.verify_mode = ssl.CERT_NONE
+                    sock = context.wrap_socket(sock)
+                else:
+                    sock = context.wrap_socket(sock, server_hostname=url.domain)
             connected = True
             self._open_connections += 1
 
@@ -362,11 +366,12 @@ class Sudos(object):
             parser.add_argument("-x", "--proxy-list", type=str, metavar="PROXY LIST", help="Proxy list path")
             parser.add_argument("-c", "--timeout", type=int, metavar="TIMEOUT", help="Connection timeout value")
             parser.add_argument("-v", "--delay", type=int, metavar="DELAY", help="HTTP request delay value")
+            parser.add_argument("-b", "--no-verify", action="store_true", help="Disable SSL verification. Use this only when the server uses self signed certificate")
             parser.add_argument("-n", "--receive", action="store_true", help="Enables receive HTTP response")
             parser.add_argument("-m", "--method", choices=["1", "2"], default=1, metavar="ATTACK METHOD", help="Attack method")
             parser.add_argument("url", nargs="?", type=str, metavar="URL", help="Target URL")
             args = parser.parse_args()
-
+            
             if not args.url:
                 print("[-] URL is required")
                 parser.print_help()
@@ -406,6 +411,8 @@ class Sudos(object):
                 self.delay = args.delay
             if args.receive:
                 self.receive_response = True
+            if args.no_verify:
+                self.ssl_cert_none = True
 
             method = int(args.method)
 
