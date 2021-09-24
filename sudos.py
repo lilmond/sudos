@@ -206,7 +206,7 @@ class Sudos(object):
                 if self.ssl_cert_none:
                     context.check_hostname = False
                     context.verify_mode = ssl.CERT_NONE
-                    sock = context.wrap_socket(sock)
+                    sock = context.wrap_socket(sock, server_hostname=url.domain)
                 else:
                     sock = context.wrap_socket(sock, server_hostname=url.domain)
             connected = True
