@@ -21,7 +21,7 @@ try:
 except FileNotFoundError:
     pass
 
-def get_proxy(code: str) -> list:
+def get_proxy(code: str):
     try:
         global active_threads
         active_threads += 1
