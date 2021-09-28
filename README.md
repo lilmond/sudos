@@ -5,7 +5,7 @@ SuDOS is a proxy-based DDOS tool (pseudo-botnet) written in Python with live sta
 Read the official documentation here: https://github.com/lilmond/sudos/blob/main/docs/manual.md
 
 ## What's new?
-- You don't need to worry about getting a proxy list anymore as we already implemented a proxy list scraper in the tool.
+- You don't need to worry about getting a proxy list anymore as we already implemented a proxy list scraper in the tool (thanks to andress134 for the suggestion).
 - We completely removed the HTTP statistics as we cannot accurately collect data from it.
 - Added custom header parameters.
 - Live display with curses.
