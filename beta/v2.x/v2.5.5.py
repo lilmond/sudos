@@ -441,7 +441,7 @@ def main():
         parser.add_argument("-c", "--timeout", metavar="TIMEOUT", default=5, type=int, help="Socket/Proxy connection timeout")
         parser.add_argument("-v", "--delay", metavar="DELAY", default=1, type=int, help="Sleep time between HTTP requests")
         parser.add_argument("-b", "--no-verify", action="store_false", help="Disable SSL certificate verification")
-        parser.add_argument("-m", "--method", metavar="ATTACK METHOD", default=1, choices=[1, 2, 3], type=int, help="Attack method to be used")
+        parser.add_argument("-m", "--method", metavar="ATTACK METHOD", default=1, choices=[1, 2], type=int, help="Attack method to be used")
 
         args = parser.parse_args()
 
