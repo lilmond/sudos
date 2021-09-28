@@ -428,25 +428,25 @@ def c_main(scr):
     while True:
         sx, sy = window.getmaxyx()
 
-        if sx >= 1 and sy >= 1:
+        if sx > 0 and sy > 0:
             window.addnstr(0, 0, "SOCKET STATISTICS", sy, curses.color_pair(1))
 
-            if sx >= 2:
+            if sx > 2:
                 window.addnstr(1, 0, "CONNECTING: ", sy, curses.color_pair(2))
                 if separator < sy:
-                    window.addnstr(1, separator, f"{settings.connecting}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
+                    window.addnstr(1, separator, f"{sx}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
 
-                if sx >= 3:
+                if sx > 3:
                     window.addnstr(2, 0, "CONNECTED:", sy, curses.color_pair(2))
                     if separator < sy:
                         window.addnstr(2, separator, f"{settings.connected}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
 
-                    if sx >= 4:
+                    if sx > 4:
                         window.addnstr(3, 0, "CLOSED:", sy, curses.color_pair(2))
                         if separator < sy:
                             window.addnstr(3, separator, f"{settings.closed}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
 
-                        if sx >= 5:
+                        if sx > 5:
                             window.addnstr(4, 0, "FAILS:", sy, curses.color_pair(2))
                             if separator < sy:
                                 window.addnstr(4, separator, f"{settings.fails}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
