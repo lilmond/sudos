@@ -218,6 +218,7 @@ def sudos(url: str, **kwargs) -> None:
         except Exception:
             delay = 1
 
+        use_proxy = False
         if kwargs.get("proxy"):
             proxy = urlsplit(kwargs.get("proxy"))
             use_proxy = True
