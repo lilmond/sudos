@@ -421,22 +421,37 @@ def c_main(scr):
 
     scr.clear()
 
-    separator = 13
+    separator = 14
+
+    window = curses.newwin(0, 0, 0, 0)
 
     while True:
-        sx, sy = scr.getmaxyx()
-        scr.addstr(0, 0, "SOCKET STATISTICS", curses.color_pair(1))
-        scr.addstr(1, 0, "CONNECTING:", curses.color_pair(2))
-        scr.addstr(2, 0, "CONNECTED:", curses.color_pair(2))
-        scr.addstr(3, 0, "CLOSED:", curses.color_pair(2))
-        scr.addstr(4, 0, "FAILS:", curses.color_pair(2))
+        sx, sy = window.getmaxyx()
 
-        scr.addstr(1, separator, f"{settings.connecting}          ", curses.color_pair(3))
-        scr.addstr(2, separator, f"{settings.connected}           ", curses.color_pair(3))
-        scr.addstr(3, separator, f"{settings.closed}              ", curses.color_pair(3))
-        scr.addstr(4, separator, f"{settings.fails}               ", curses.color_pair(3))
+        if sx >= 1 and sy >= 1:
+            window.addnstr(0, 0, "SOCKET STATISTICS", sy, curses.color_pair(1))
 
-        scr.refresh()
+            if sx >= 2:
+                window.addnstr(1, 0, "CONNECTING: ", sy, curses.color_pair(2))
+                if separator < sy:
+                    window.addnstr(1, separator, f"{settings.connecting}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
+
+                if sx >= 3:
+                    window.addnstr(2, 0, "CONNECTED:", sy, curses.color_pair(2))
+                    if separator < sy:
+                        window.addnstr(2, separator, f"{settings.connected}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
+
+                    if sx >= 4:
+                        window.addnstr(3, 0, "CLOSED:", sy, curses.color_pair(2))
+                        if separator < sy:
+                            window.addnstr(3, separator, f"{settings.closed}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
+
+                        if sx >= 5:
+                            window.addnstr(4, 0, "FAILS:", sy, curses.color_pair(2))
+                            if separator < sy:
+                                window.addnstr(4, separator, f"{settings.fails}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
+
+        window.refresh()
         time.sleep(.1)
 
 
