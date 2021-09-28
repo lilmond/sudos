@@ -18,17 +18,24 @@ Default: 100
 
 Type: INTEGER
 
-### `-z` `--proxy-type`
-Define the proxy protocol of the proxy list you're using. This is required when you're using a proxy list.
+### `-u`, `--update-proxy`
+Update proxy list before initializing the attack.
 
-Type: PROXY TYPE
+Default: False
 
-Example: `socks5`, `socks4`, `http`
+Type: NONE
 
-### `x` `--proxy-list`
-Proxy list path. List format must be like: `127.0.0.1:9050`
+### `-p`, `--no-proxy`
+Don't use proxy for the attack.
 
-Type: FILE PATH
+Default: False
+
+Type: NONE
+
+### `-H`, `--headers`
+Add a custom header. Format: "Header_Name: Header_Value"
+
+Type: STRING
 
 ### `-c` `--timeout`
 Set socket connection timeout.
@@ -51,13 +58,6 @@ Default: False
 
 Type: NONE
 
-### `-n` `--receive`
-When this is set. You will receive HTTP response per HTTP request the socket send.
-
-Default: False
-
-Type: NONE
-
 ### `-m` `--mode`
 Set mode.
 
@@ -68,20 +68,10 @@ Type: INTEGER
 ## Examples
 So if you're having trouble figuring out how to use SuDOS, try using the example commands below!
 
-URL parameter is also always required so we will exclude it from required parameter values.
-
 ### Basic
 This is the easiest way of using SuDOS. Take note that this won't use proxies and will use your real own IP address for the attack and your IP may get blocked by your target.
 
-Required Parameters: NONE
+Required Parameters: URL
 ```
 python sudos.py http://example.com/
-```
-
-### Proxy Mode
-This is how you can use proxies for the attack.
-
-Required Parameters: [-z | --proxy-type](https://github.com/lilmond/sudos/blob/main/docs/usage.md#-z---proxy-type), [-x | --proxy-list](https://github.com/lilmond/sudos/blob/main/docs/usage.md#x---proxy-list)
-```
-python sudos.py -z socks5 -x socks5_list.txt https://example.com/
 ```
