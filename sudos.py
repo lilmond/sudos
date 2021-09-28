@@ -432,9 +432,9 @@ def c_main(scr):
             window.addnstr(0, 0, "SOCKET STATISTICS", sy, curses.color_pair(1))
 
             if sx > 2:
-                window.addnstr(1, 0, "CONNECTING: ", sy, curses.color_pair(2))
+                window.addnstr(1, 0, "CONNECTING:", sy, curses.color_pair(2))
                 if separator < sy:
-                    window.addnstr(1, separator, f"{sx}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
+                    window.addnstr(1, separator, f"{settings.connecting}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
 
                 if sx > 3:
                     window.addnstr(2, 0, "CONNECTED:", sy, curses.color_pair(2))
