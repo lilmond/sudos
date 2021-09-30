@@ -37,6 +37,11 @@ Add a custom header. Format: "Header_Name: Header_Value"
 
 Type: STRING
 
+### `-l`, `--proxy-list`
+Use custom proxy list. Use the proxy_formatter.py before using this parameter!
+
+Type: FILE
+
 ### `-c` `--timeout`
 Set socket connection timeout.
 
