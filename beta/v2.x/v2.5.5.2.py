@@ -445,6 +445,7 @@ def c_main(scr):
     scr.clear()
 
     separator = 14
+    update_interval = 1 / 10
 
     window = curses.newwin(0, 0, 0, 0)
 
@@ -475,7 +476,7 @@ def c_main(scr):
                                 if separator < sy:
                                     window.addnstr(4, separator, f"{settings.fails}{' ' * (sy - separator)}", sy - separator, curses.color_pair(3))
             window.refresh()
-            time.sleep(1 / 1000)
+            time.sleep(update_interval)
     else:
         while True:
             sx, sy = window.getmaxyx()
@@ -503,7 +504,7 @@ def c_main(scr):
                                 if separator < sy:
                                     window.addnstr(4, separator, f"{settings.fails}{' ' * (sy - separator)}", sy - separator)
             window.refresh()
-            time.sleep(1 / 1000)
+            time.sleep(update_interval)
 
 
 def main():
