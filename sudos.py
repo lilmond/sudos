@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#version: 2.5.5.1-beta
+#version: 2.5.5.2-beta
 
 #built-in libs
 import collections
@@ -388,9 +388,23 @@ def attackrunner(args) -> None:
 
 
         if not args.no_proxy:
-            if args.update_proxy:
-                fetchproxy()
-            loadproxy()
+            if args.proxy_list:
+                if not os.path.exists(args.proxy_list):
+                    print(f"[-] Proxy list file not found")
+                    settings.status = 0
+                    sys.exit()
+
+                try:
+                    with open(args.proxy_list) as file:
+                        settings.proxies = file.read().splitlines()
+                        file.close()
+                except Exception as e:
+                    print(f"[-] Proxy list file error: {e}")
+                    sys.exit()
+            else:
+                if args.update_proxy:
+                    fetchproxy()
+                loadproxy()
             settings.status = 2
             while settings.status != 0:
                 for proxy in settings.proxies:
@@ -500,6 +514,7 @@ def main():
         parser.add_argument("-u", "--update-proxy", action="store_true", help="Update current proxy list. Download if haven't yet installed")
         parser.add_argument("-p", "--no-proxy", action="store_true", help="Run attack without proxies")
         parser.add_argument("-H", "--headers", metavar="HEADERS", action="append", help="Add custom HTTP header")
+        parser.add_argument("-l", "--proxy-list", metavar="PROXY LIST", type=str, help="Use custom proxy list. REQUIRED FORMAT: socks5://127.0.0.1:9050")
         parser.add_argument("-c", "--timeout", metavar="TIMEOUT", default=5, type=int, help="Socket/Proxy connection timeout")
         parser.add_argument("-v", "--delay", metavar="DELAY", default=1, type=int, help="Sleep time between HTTP requests")
         parser.add_argument("-b", "--no-verify", action="store_false", help="Disable SSL certificate verification")
@@ -514,6 +529,7 @@ def main():
                 sys.exit()
             elif settings.status == 2:
                 break
+            time.sleep(.1)
 
         curses.wrapper(c_main)
     except KeyboardInterrupt:
