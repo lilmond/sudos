@@ -342,10 +342,9 @@ def sudos(url: str, **kwargs) -> None:
                         break
                     sock.send(data.encode())
                     time.sleep(delay)
-                time.sleep(delay)
-    except Exception as e:
+                time.sleep(1)
+    except Exception:
         settings.fails += 1
-        #print(f"sudos error: {e}")
         pass
     finally:
         settings.active_threads -= 1
