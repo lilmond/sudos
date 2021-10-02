@@ -19,6 +19,7 @@ If you are, it would be great if join our Discord server! Don't forget to introd
 
 Discord: https://discord.com/invite/dZSDbjJPHx
 
+#
 I'm just gonna put a picture of this cat right over here because this cat looks so satisfying. (his name is Ollie btw)
 
 ![cot](https://raw.githubusercontent.com/lilmond/sudos/main/screenshots/cot.png)
