@@ -17,3 +17,7 @@ Keep it legal! Use our simplified HTTP DSTAT tool: https://github.com/lilmond/fl
 If you are, it would be great if join our Discord server! Don't forget to introduce yourself at the introduction channel so we can give you roles.
 
 Discord: https://discord.com/invite/dZSDbjJPHx
+
+I'm just gonna put a picture of this cat right over here because this cat looks so satisfying. (his name is Ollie btw)
+
+![cot](https://raw.githubusercontent.com/lilmond/sudos/main/screenshots/cot.png)
