@@ -71,10 +71,10 @@ Default: 1
 Type: INTEGER
 
 ## Examples
-So if you're having trouble figuring out how to use SuDOS, try using the example commands below!
+So if you're having trouble figuring out how to use SuDOS, try using the example command below.
 
 ### Basic
-This is the easiest way of using SuDOS. Take note that this won't use proxies and will use your real own IP address for the attack and your IP may get blocked by your target.
+This is the easiest way of using SuDOS.
 
 Required Parameters: URL
 ```
