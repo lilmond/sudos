@@ -51,8 +51,8 @@ def main():
 
                 print(f"ping={connect_timestamp} status={status}")
                 time.sleep(1)
-        except Exception:
-            print("ping=timeout")
+        except Exception as e:
+            print("ERROR: {e}")
             time.sleep(1)
             continue
 
