@@ -11,4 +11,3 @@ Proxy servers provider: https://openproxy.space/premium
 ## What's new?
 ### v2.5.5
 - Fixed issue#7 (https://github.com/lilmond/sudos/issues/7)
-- Removed the satisfying cat photo.
