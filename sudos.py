@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#version: 2.5.5.2-beta
+#version: 2.5.5.3-beta
 
 #built-in libs
 import collections
@@ -56,56 +56,36 @@ class settings:
 
 def fetchproxy() -> None:
     print("[+] Downloading proxies.txt")
-    jsepoch = int(time.time()) * 1000#(int(time.time()) - (3600 * 24)) * 1000
-    http = requests.get(f"https://api.openproxy.space/list?skip=0&ts={jsepoch}")
 
-    dirname = os.path.dirname(__file__)
-    proxy_path = f"{dirname}/etc/proxies.txt"
+    if os.path.exists("./etc/proxies.txt"):
+        os.remove("./etc/proxies.txt")
 
-    if not os.path.exists(f"{dirname}/etc/"):
-        os.mkdir(f"{dirname}/etc/")
+    proxy_types = ["socks5", "socks4", "http"]
+    for proxy_type in proxy_types:
+        threading.Thread(target=fetch_proxy, args=[proxy_type, "./etc/proxies.txt"], daemon=True).start()
 
-    if os.path.exists(proxy_path):
-        os.remove(proxy_path)
-
-    proxy_list = json.loads(http.text)
-    for proxy in proxy_list:
-        code = proxy["code"]
-        threading.Thread(target=fetchproxycode, args=[code], daemon=True).start()
+    time.sleep(1)
 
     while True:
-        if settings.active_threads == 0:
-            break
+        if threading.active_count() == 2: break
 
-def fetchproxycode(code: str) -> None:
-    settings.active_threads += 1
-    http = requests.get(f"https://api.openproxy.space/list/{code}")
+def fetch_proxy(proxy_type, logfile):
+    proxies_socks5 = requests.get(f"https://api.openproxy.space/lists/{proxy_type}")
+    proxies_socks5 = json.loads(proxies_socks5.text)
+    proxies_socks5_list = proxies_socks5["data"]
 
-    proxy = json.loads(http.text)
-    protocol = proxy["protocols"][0]
-    proxy_list = proxy["data"][0]["items"]
+    log_text = ""
 
-    if protocol == 1:
-        protocol = "http"
-    elif protocol == 3:
-        protocol = "socks4"
-    elif protocol == 4:
-        protocol = "socks5"
+    for proxy in proxies_socks5_list:
+        proxy_addresses = proxy["items"]
 
-    proxies_str = ""
-    for proxy in proxy_list:
-        proxy = proxy.strip()
-        proxies_str += f"{protocol}://{proxy}\r\n"
-    proxies_str = proxies_str.strip()
+        for proxy_address in proxy_addresses:
+            proxy_text = f"{proxy_type}://{proxy_address}"
+            log_text += f"{proxy_text}\n"
 
-    dirname = os.path.dirname(__file__)
-    proxy_path = f"{dirname}/etc/proxies.txt"
-
-    with open(proxy_path, "a") as file:
-        file.write(f"{proxies_str}\r\n")
+    with open(logfile, "a") as file:
+        file.write(log_text)
         file.close()
-
-    settings.active_threads -= 1
 
 def fetchuseragent() -> None:
     dirname = os.path.dirname(__file__)
@@ -147,7 +127,7 @@ def loadproxy() -> None:
         settings.proxies = file.read().splitlines()
         file.close()
 
-def urlsplit(url: str) -> (None, "URLObject"):
+def urlsplit(url: str):
     try:
         protocol, domain = url.split("://", 1)
     except Exception:
