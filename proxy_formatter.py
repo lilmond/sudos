@@ -1,5 +1,4 @@
 import argparse
-import time
 import os
 
 def main():
@@ -44,7 +43,7 @@ def main():
     if args.output:
         outfile = args.output
     else:
-        outfile = f"proxy_list_{time.strftime('%F-%H-%M-%S')}.txt"
+        outfile = f"formatted_{args.file}"
 
     if os.path.exists(outfile):
         prompt = input("The output file already exists. Overwrite? [Y/n]: ").strip()
