@@ -52,7 +52,7 @@ def main():
             exit()
 
     with open(outfile, "a") as file:
-        file.write("\r\n".join(proxy_list2))
+        file.write("\n".join(proxy_list2))
         file.close()
 
     print(f"OUTPUT FILE: {outfile}")
