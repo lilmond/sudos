@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#version: 2.5.5.3-beta
+#version: 2.5.5.3.1-beta
 
 #built-in libs
 import collections
@@ -60,9 +60,12 @@ def fetchproxy() -> None:
     if os.path.exists("./etc/proxies.txt"):
         os.remove("./etc/proxies.txt")
 
+    dirname = os.path.dirname(__file__)
+    proxies_path = f"{dirname}/etc/proxies.txt"
+
     proxy_types = ["socks5", "socks4", "http"]
     for proxy_type in proxy_types:
-        threading.Thread(target=fetch_proxy, args=[proxy_type, "./etc/proxies.txt"], daemon=True).start()
+        threading.Thread(target=fetch_proxy, args=[proxy_type, proxies_path], daemon=True).start()
 
     time.sleep(1)
 
