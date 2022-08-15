@@ -8,6 +8,9 @@ Discord (anti-pedophile movement): QjIya0ZmakhoZg==
 
 Proxy servers provider: https://openproxy.space/premium
 
+# Previous Version
+- [v2.5.5.3.1](https://github.com/lilmond/sudos/blob/beta/beta/v2.x/v2.5.5.3.1.py)
+
 ## What's new?
 ### v2.5.5
 - Fixed issue#7 (https://github.com/lilmond/sudos/issues/7)
