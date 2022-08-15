@@ -12,6 +12,11 @@ Proxy servers provider: https://openproxy.space/premium
 - [v2.5.5.3.1](https://github.com/lilmond/sudos/blob/beta/beta/v2.x/v2.5.5.3.1.py)
 
 ## What's new?
+### v2.6
+- Major changes
+- Removed unnecessary codes
+- Other features will be added soon
+
 ### v2.5.5
 - Fixed issue#7 (https://github.com/lilmond/sudos/issues/7)
 
