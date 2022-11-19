@@ -1,2 +1,3 @@
 PySocks
 requests
+windows-curses
