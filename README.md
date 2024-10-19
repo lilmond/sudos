@@ -4,9 +4,9 @@ SuDOS is a proxy-based DDOS tool (pseudo-botnet) written in Python with live sta
 
 Read the official documentation here: https://github.com/lilmond/sudos/blob/main/docs/manual.md
 
-Discord (anti-pedophile movement): QjIya0ZmakhoZg==
+Join my Discord server for free hacking tools: https://discord.gg/Bnf3e8pkyj
 
-Proxy servers provider: https://openproxy.space/premium
+Proxy servers provider (shout out to them for being awesome): https://openproxy.space/premium
 
 # Previous Version
 - [v2.5.5.3.1](https://github.com/lilmond/sudos/blob/beta/beta/v2.x/v2.5.5.3.1.py)
