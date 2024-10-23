@@ -1,3 +1,6 @@
 PySocks
 requests
-windows-curses
+cloudscraper
+websocket-client
+#remove the comment tag if you're running on windows
+#windows-curses
