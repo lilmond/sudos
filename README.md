@@ -1,9 +1,5 @@
 # sudos
 
-Little fun fact: The example shown below uses `http-get-rapid` attack method. This method can hit up to 1K HR/s with only 20 socket connections when used correctly.
-![image](https://github.com/user-attachments/assets/1067d797-29d1-4a50-8aaf-5ec470159d48)
-
-
 Layer 7 DDoS Tool.
 
 Too rich? Send all your Bitcoins here (Donation): 17nXfqRRiSGDpx1XEh3veHA6gyCLAktFk9
@@ -17,7 +13,20 @@ Cool proxy servers provider: https://openproxy.space/premium
 # Introducing sudos 2.7.0
 Too long have passed since the last update, so I decided to upgrade this tool to a new level. New attack methods and features have been added, more of them will be added later. I will be documenting about it all later. Thank you for your support!
 
-Help
+Little fun fact: The example shown below uses `http-get-rapid` attack method. This method can hit up to 1K HR/s with only 20 socket connections when used correctly.
+![image](https://github.com/user-attachments/assets/1067d797-29d1-4a50-8aaf-5ec470159d48)
+
+# Installation
+Linux
+```
+git clone https://github.com/lilmond/sudos
+cd sudos
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+# Help
 ```
                                                     __                     
                                                    |  \                    
