@@ -11,7 +11,7 @@ Follow me for more free hacking tools :3
 Cool proxy servers provider: https://openproxy.space/premium
 
 # Introducing sudos 2.7.0
-Too long have passed since the last update, so I decided to upgrade this tool to a new level. New attack methods and features have been added, more of them will be added later. I will be documenting about it all later. Thank you for your support!
+Too long have passed since the last update, so I decided to upgrade this tool to a new level. New attack methods and features have been added, even more will be added later. I will be documenting about it all later. Thank you for your support!
 
 Little fun fact: The example shown below uses `http-get-rapid` attack method. This method can hit up to 1K HR/s with only 20 socket connections when used correctly.
 ![image](https://github.com/user-attachments/assets/1067d797-29d1-4a50-8aaf-5ec470159d48)
