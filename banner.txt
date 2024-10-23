@@ -1,0 +1,18 @@
+                           __                     
+                          |  \                    
+  _______  __    __   ____| $$  ______    _______ 
+ /       \|  \  |  \ /      $$ /      \  /       \
+|  $$$$$$$| $$  | $$|  $$$$$$$|  $$$$$$\|  $$$$$$$
+ \$$    \ | $$  | $$| $$  | $$| $$  | $$ \$$    \ 
+ _\$$$$$$\| $$__/ $$| $$__| $$| $$__/ $$ _\$$$$$$\
+|       $$ \$$    $$ \$$    $$ \$$    $$|       $$
+ \$$$$$$$   \$$$$$$   \$$$$$$$  \$$$$$$  \$$$$$$$ 
+
+ Source: https://github.com/lilmond/sudos V:2.7.0
+
+      Try out the other attack methods, list:
+    ["http-get", "http-get-rapid", "http-post",
+       "http-post-slow", "http-post-custom",
+          "ssl-flood", "websocket-flood"]
+
+
