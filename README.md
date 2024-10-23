@@ -1,5 +1,9 @@
 # sudos
 
+Little fun fact: The example shown below uses `http-get-rapid` attack method. This method can hit up to 1K HR/s with only 20 socket connections when used correctly.
+![image](https://github.com/user-attachments/assets/1067d797-29d1-4a50-8aaf-5ec470159d48)
+
+
 Layer 7 DDoS Tool.
 
 Too rich? Send all your Bitcoins here (Donation): 17nXfqRRiSGDpx1XEh3veHA6gyCLAktFk9
