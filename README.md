@@ -1,6 +1,6 @@
 # sudos
 
-Layer 7 DDoS Tool.
+Layer 7 DDoS Tool that supports different types of attack methods.
 
 Too rich? Send all your Bitcoins here (Donation): 17nXfqRRiSGDpx1XEh3veHA6gyCLAktFk9
 
