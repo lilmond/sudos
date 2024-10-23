@@ -11,7 +11,7 @@ Follow me for more free hacking tools :3
 Cool proxy servers provider: https://openproxy.space/premium
 
 # Introducing sudos 2.7.0
-Too long have passed since the last update, so I decided to upgrade this tool to a new level. New attack methods and features have been added. I will be documenting about it all later. Thank you for your support!
+Too long have passed since the last update, so I decided to upgrade this tool to a new level. New attack methods and features have been added, more of them will be added later. I will be documenting about it all later. Thank you for your support!
 
 Help
 ```
