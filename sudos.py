@@ -32,7 +32,7 @@ class Sudos(object):
     active_threads = 0
     sent_requests = 0
 
-    def __init__(self, url: str, threads: int, attack_method: str = "http-get", delay: float = 1, headers: dict = None, payload: str = None, timeout: int = 10, quiet: bool = False, tor: bool = False, proxy_list: list = None):
+    def __init__(self, url: str, threads: int, attack_method: str = "http-get", delay: float = 1, headers: dict = None, payload: str = None, timeout: int = 10, quiet: bool = False, tor: bool = False, proxy_list: list = None, test: bool = False):
         self.url = url
         self.threads = threads
         self.attack_method = attack_method
@@ -43,6 +43,7 @@ class Sudos(object):
         self.quiet = quiet
         self.tor = tor
         self.proxy_list = proxy_list
+        self.test = test
 
         parsed_url = urlparse(url)
         self.parsed_url = parsed_url
@@ -160,6 +161,9 @@ class Sudos(object):
             "Upgrade-Insecure-Requests": "1",
             "User-Agent": random.choice(useragents)
         }
+
+        if self.test:
+            del default_headers["Accept-Encoding"]
 
         if self.headers:
             default_headers.update(self.headers)
@@ -354,7 +358,7 @@ def main():
     else:
         proxies_list = None
 
-    sudos = Sudos(url=args.url, threads=args.threads, attack_method=args.method, delay=args.delay, headers=custom_headers, payload=args.payload, timeout=args.timeout, quiet=args.quiet, tor=args.tor, proxy_list=proxies_list)
+    sudos = Sudos(url=args.url, threads=args.threads, attack_method=args.method, delay=args.delay, headers=custom_headers, payload=args.payload, timeout=args.timeout, quiet=args.quiet, tor=args.tor, proxy_list=proxies_list, test=args.test)
 
     if args.test:
         if args.method in ["http-get-rapid", "http-post-slow", "ssl-flood", "websocket-flood"]:
@@ -367,42 +371,47 @@ def main():
     threading.Thread(target=sudos.attack_handler, daemon=True).start()
     print(f"Attack has been initialized. Press {Colors.blue}<ENTER>{Colors.reset} or {Colors.blue}<CTRL + C>{Colors.reset} to stop manually.")
 
-    last_requests = 0
-    hrs = 0
-    last_hrs_time = time.time()
-    print("\033[?25l", end="") # Hides the blinking cursor
 
-    if args.duration:
-        attack_timeout = time.time() + args.duration
-
-    while True:
-        total_requests = sudos.sent_requests
-
-        if time.time() - last_hrs_time >= 1:
-            hrs = total_requests - last_requests
-            last_hrs_time = time.time()
-            last_requests = total_requests
-
-        terminal_column = os.get_terminal_size().columns
-
-        text = f"HR/S: {Colors.blue}{hrs:,}{Colors.reset} Total: {Colors.blue}{total_requests:,}{Colors.reset}"
-        
-        if args.duration:
-            timeout_countdown = f"{(attack_timeout - time.time()):.2f}"
-
-            if float(timeout_countdown) <= 0:
-                timeout_countdown = "Timed out"
-
-            text += f" Countdown: {Colors.blue}{timeout_countdown}{Colors.reset}"
-
-        sys.stdout.write(f"\r{text}{' ' * int(terminal_column - len(text))}\r")
-        sys.stdout.flush()
+    def statistics():
+        last_requests = 0
+        hrs = 0
+        last_hrs_time = time.time()
+        print("\033[?25l", end="") # Hides the blinking cursor
 
         if args.duration:
-            if time.time() >= attack_timeout:
-                break
+            attack_timeout = time.time() + args.duration
 
-        time.sleep(0.11)
+        while True:
+            total_requests = sudos.sent_requests
+
+            if time.time() - last_hrs_time >= 1:
+                hrs = total_requests - last_requests
+                last_hrs_time = time.time()
+                last_requests = total_requests
+
+            terminal_column = os.get_terminal_size().columns
+
+            text = f"HR/S: {Colors.blue}{hrs:,}{Colors.reset} Total: {Colors.blue}{total_requests:,}{Colors.reset}"
+            
+            if args.duration:
+                timeout_countdown = f"{(attack_timeout - time.time()):.2f}"
+
+                if float(timeout_countdown) <= 0:
+                    timeout_countdown = "Timed out"
+
+                text += f" Countdown: {Colors.blue}{timeout_countdown}{Colors.reset}"
+
+            sys.stdout.write(f"\r{text}{' ' * int(terminal_column - len(text))}\r")
+            sys.stdout.flush()
+
+            if args.duration:
+                if time.time() >= attack_timeout:
+                    break
+
+            time.sleep(0.11)
+    
+    threading.Thread(target=statistics, daemon=True).start()
+    input()
 
 if __name__ == "__main__":
     try:
