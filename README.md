@@ -17,7 +17,7 @@ Little fun fact: The example shown below uses `http-get-rapid` attack method. Th
 ![image](https://github.com/user-attachments/assets/1067d797-29d1-4a50-8aaf-5ec470159d48)
 
 
-Supports attacks via Tor. This is just an example and not actually "real". This tool isn't powerful enough to get you behind bars, still don't use it for malicious purposes as I will not take accountability for your actions.
+Supports attacks via Tor. This is just an example and not actually "real". Do not take this seriously. This tool isn't powerful enough to get you behind bars, still don't use it for malicious purposes as I will not take accountability for your actions.
 ![image](https://github.com/user-attachments/assets/9bdab9e5-aab7-4d24-a127-7b70e65dbfc7)
 
 
