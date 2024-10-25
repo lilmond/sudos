@@ -16,6 +16,11 @@ Too long have passed since the last update, so I decided to upgrade this tool to
 Little fun fact: The example shown below uses `http-get-rapid` attack method. This method can hit up to 1K HR/s with only 20 socket connections when used correctly.
 ![image](https://github.com/user-attachments/assets/1067d797-29d1-4a50-8aaf-5ec470159d48)
 
+
+Supports attacks via Tor. This is just an example and not actually "real".
+![image](https://github.com/user-attachments/assets/9bdab9e5-aab7-4d24-a127-7b70e65dbfc7)
+
+
 # Installation
 Linux
 ```
