@@ -6,6 +6,8 @@ Too rich? Send all your Bitcoins here (Donation): 17nXfqRRiSGDpx1XEh3veHA6gyCLAk
 
 Discord for hackers: https://discord.com/invite/Bnf3e8pkyj
 
+Discord for pedo hunters: https://discord.com/invite/k4xVEpA7yM
+
 Follow me for more free hacking tools :3
 
 Cool proxy servers provider: https://openproxy.space/premium
