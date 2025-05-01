@@ -4,7 +4,7 @@ Layer 7 DDoS tool that supports sophisticated attack methods.
 
 Too rich? Send all your Bitcoins here (Donation): 17nXfqRRiSGDpx1XEh3veHA6gyCLAktFk9
 
-Discord for hackers: https://discord.com/invite/Bnf3e8pkyj
+Discord (Roblox Exploiters Hangout): https://discord.gg/87RukNzFYX
 
 Discord for pedo hunters: https://discord.com/invite/k4xVEpA7yM
 
