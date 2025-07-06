@@ -1,3 +1,5 @@
+# 🛡️ This tool is for educational purposes only. Do not use this against systems you don’t own or have permission to test.
+
 # sudos
 
 Layer 7 DDoS tool that supports sophisticated attack methods.
