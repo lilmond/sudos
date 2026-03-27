@@ -3,6 +3,7 @@ import threading
 import argparse
 import requests
 import logging
+import random
 import socket
 import socks
 import time
@@ -15,7 +16,6 @@ class Config:
     TRIES = 3
     TIMEOUT = 10
     FETCHED_PROXIES = []
-    PROXY_FETCHER_THREADS = 0
     PROXY_CHECKER_THREADS = 0
     CHECKED_PROXIES_COUNT = 0
     GOOD_PROXIES_COUNT = 0
@@ -42,39 +42,14 @@ with open("proxal_banner.txt", "r") as file:
     file.close()
 
 def fetch_proxies():
-    logger.info("Fetching public proxies...")
-
-    proxy_types = ["socks5", "socks4", "http"]
-    for proxy_type in proxy_types:
-        threading.Thread(target=fetch_proxy, args=[proxy_type], daemon=True).start()
-
-    time.sleep(1)
-
-    while True:
-        if Config.PROXY_FETCHER_THREADS <= 0: break
+    logger.info("Fetching proxies...")
     
-    logging.info("Public proxies successfully fetched.")
-
-def fetch_proxy(proxy_type):
-    Config.PROXY_FETCHER_THREADS += 1
-
-    while True:
-        try:
-            proxy_list = requests.get(f"https://api.openproxy.space/lists/{proxy_type}").json()
-
-            for proxy in proxy_list["data"]:
-                proxy_addresses = proxy["items"]
-
-                for proxy_address in proxy_addresses:
-                    proxy_address = f"{proxy_type}://{proxy_address}"
-                    Config.FETCHED_PROXIES.append(proxy_address)
-            
-            Config.PROXY_FETCHER_THREADS -= 1
-
-            return
-        except Exception as e:
-            time.sleep(1)
-            continue
+    proxy_list = requests.get(f"https://raw.githubusercontent.com/proxifly/free-proxy-list/refs/heads/main/proxies/all/data.txt").text
+    
+    for proxy_address in proxy_list.strip().splitlines():
+        Config.FETCHED_PROXIES.append(proxy_address)
+    
+    logger.info("Proxies successfully fetched.")
 
 def clear_console():
     if sys.platform == "win32":
@@ -98,9 +73,9 @@ def check_proxy(proxy_address: str):
 
             sock = socks.socksocket(socket.AF_INET, socket.SOCK_STREAM)
             sock.set_proxy(proxy_type=proxy_type, addr=proxy_host, port=proxy_port)
-            sock.connect(("www.roblox.com", 80))
+            sock.connect(("google.com", 80))
 
-            http_data = "GET / HTTP/1.1\r\nHost: www.roblox.com\r\n\r\n"
+            http_data = "GET / HTTP/1.1\r\nHost: google.com\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.10 Safari/605.1.1\r\n\r\n"
 
             sock.send(http_data.encode())
 
@@ -132,7 +107,8 @@ def check_proxy(proxy_address: str):
             is_good_proxy = True
 
             break
-        except Exception:
+        except Exception as e:
+            # print(f"CHECK_PROXY ERROR: {e} - {proxy_address}")
             time.sleep(1)
             continue
     
@@ -151,6 +127,7 @@ def main():
     parser = argparse.ArgumentParser(description="Proxal, automated working proxy servers finder.")
     parser.add_argument("-o", "--output", type=argparse.FileType("a"), required=True, help="Output file after checking if a proxy is alive.")
     parser.add_argument("-t", "--threads", type=int, default=Config.THREADS, help=f"Max threads for checking proxies. Default: {Config.THREADS}")
+    parser.add_argument("-r", "--randomize", action="store_true", help="Randomize proxy list to check after gathering.")
     parser.add_argument("--tries", type=int, default=Config.TRIES, help=f"Max tries for connecting to a proxy server. Default: {Config.TRIES}")
     parser.add_argument("--timeout", type=int, default=Config.TIMEOUT, help=f"Socket connection timeout. Default: {Config.TIMEOUT}")
 
@@ -163,6 +140,9 @@ def main():
     socket.setdefaulttimeout(args.timeout)
 
     fetch_proxies()
+
+    if args.randomize:
+        random.shuffle(Config.FETCHED_PROXIES)
 
     start_time = time.time()
     last_elapsed = None
